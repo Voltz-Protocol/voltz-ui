@@ -2,7 +2,7 @@ name: Push to staging branch
 on:
   push:
     branches:
-      - main
+      - staging
 jobs:
   staging:
     name: Staging
@@ -21,3 +21,23 @@ jobs:
         run: make install-ci
       - name: Run tests
         run: make test
+      - name: Configure amplify
+        uses: ambientlight/amplify-cli-action@0.3.0
+        with:
+          amplify_command: configure
+          amplify_env: staging
+          amplify_cli_version: 7.6.13
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: eu-west-1
+      - name: Publish amplify
+        uses: ambientlight/amplify-cli-action@0.3.0
+        with:
+          amplify_command: publish
+          amplify_env: staging
+          amplify_cli_version: 7.6.13
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: eu-west-1
