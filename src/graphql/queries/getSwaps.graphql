@@ -1,5 +1,5 @@
-query GetSwaps($orderBy: Swap_orderBy!) {
-  swaps(first: 100, orderBy: $orderBy, orderDirection: asc) {
+query GetSwaps($orderBy: Swap_orderBy!, $id: ID!) {
+  swaps(first: 100, where: { position: { id: {_eq: $id} } }, orderBy: $orderBy, orderDirection: asc) {
     id
     transaction {
       id

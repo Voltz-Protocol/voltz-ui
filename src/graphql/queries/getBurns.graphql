@@ -1,5 +1,5 @@
-query GetBurns($orderBy: Burn_orderBy!) {
-  burns(first: 100, orderBy: $orderBy, orderDirection: asc) {
+query GetBurns($orderBy: Burn_orderBy!, $id: ID!) {
+  burns(first: 100, where: { position: { id: {_eq: $id} } }, orderBy: $orderBy, orderDirection: asc) {
     id
     transaction {
       id
