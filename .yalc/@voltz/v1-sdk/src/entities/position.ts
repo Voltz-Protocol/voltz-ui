@@ -45,6 +45,7 @@ class Position {
   public fixedTokenBalance: JSBI;
 
   public variableTokenBalance: JSBI;
+  public isLiquidityProvider: boolean;
 
   public isLiquidityProvider: boolean;
 
