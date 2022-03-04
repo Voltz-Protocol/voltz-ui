@@ -1,0 +1,22 @@
+query GetAMM($id: ID!) {
+  amm(id: $id) {
+    id
+    createdTimestamp
+    updatedTimestamp
+    fcmAddress
+    rateOracle {
+      id
+      token {
+        id
+        name
+      }
+    }
+    termStartTimestamp
+    termEndTimestamp
+    tickSpacing
+    sqrtPriceX96
+    liquidity
+    tick
+    txCount
+  }
+}

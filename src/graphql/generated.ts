@@ -1778,6 +1778,13 @@ export enum _SubgraphErrorPolicy_ {
   Deny = 'deny'
 }
 
+export type GetAmmQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type GetAmmQuery = { __typename?: 'Query', amm?: { __typename?: 'AMM', id: string, createdTimestamp: any, updatedTimestamp: any, fcmAddress: string, termStartTimestamp: any, termEndTimestamp: any, tickSpacing: any, sqrtPriceX96: any, liquidity: any, tick: any, txCount: any, rateOracle: { __typename?: 'RateOracle', id: string, token: { __typename?: 'UnderlyingToken', id: string, name: string } } } | null };
+
 export type GetAmMsQueryVariables = Exact<{
   orderBy: Amm_OrderBy;
 }>;
@@ -2273,6 +2280,58 @@ export type DirectiveResolvers<ContextType = any> = ResolversObject<{
 }>;
 
 
+export const GetAmmDocument = gql`
+    query GetAMM($id: ID!) {
+  amm(id: $id) {
+    id
+    createdTimestamp
+    updatedTimestamp
+    fcmAddress
+    rateOracle {
+      id
+      token {
+        id
+        name
+      }
+    }
+    termStartTimestamp
+    termEndTimestamp
+    tickSpacing
+    sqrtPriceX96
+    liquidity
+    tick
+    txCount
+  }
+}
+    `;
+
+/**
+ * __useGetAmmQuery__
+ *
+ * To run a query within a React component, call `useGetAmmQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAmmQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAmmQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetAmmQuery(baseOptions: Apollo.QueryHookOptions<GetAmmQuery, GetAmmQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAmmQuery, GetAmmQueryVariables>(GetAmmDocument, options);
+      }
+export function useGetAmmLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAmmQuery, GetAmmQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAmmQuery, GetAmmQueryVariables>(GetAmmDocument, options);
+        }
+export type GetAmmQueryHookResult = ReturnType<typeof useGetAmmQuery>;
+export type GetAmmLazyQueryHookResult = ReturnType<typeof useGetAmmLazyQuery>;
+export type GetAmmQueryResult = Apollo.QueryResult<GetAmmQuery, GetAmmQueryVariables>;
 export const GetAmMsDocument = gql`
     query GetAMMs($orderBy: AMM_orderBy!) {
   amms(first: 100, orderBy: $orderBy, orderDirection: asc) {

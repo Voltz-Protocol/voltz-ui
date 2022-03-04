@@ -1,25 +1,27 @@
 import JSBI from 'jsbi';
-import { BigNumber, Signer } from 'ethers';
+import { BigNumber, ContractTransaction, Signer } from 'ethers';
 
 import { BigintIsh } from '../types';
 import { PERIPHERY_ADDRESS, Q192 } from '../constants';
 import { Price } from './fractions/price';
-import { Periphery__factory, MarginEngine__factory } from '../typechain';
+// eslint-disable-next-line no-use-before-define
+import { Periphery__factory as peripheryFactory, MarginEngine__factory as marginEngineFactory } from '../typechain';
 import { SwapPeripheryParams, MintOrBurnParams } from '../utils/interfaces';
 import Token from './token';
+import RateOracle from './rateOracle';
 
 export type AMMConstructorArgs = {
   id: string;
   marginEngineAddress: string;
   fcmAddress: string;
-  rateOracleAddress: string;
+  rateOracle: RateOracle;
   protocolName: string;
   createdTimestamp: BigintIsh;
   updatedTimestamp: BigintIsh;
   termStartTimestamp: JSBI;
   termEndTimestamp: JSBI;
   underlyingToken: Token;
-  sqrtRatioX96: JSBI;
+  sqrtPriceX96: JSBI;
   liquidity: JSBI;
   tick: JSBI;
   tickSpacing: JSBI;
@@ -42,6 +44,13 @@ export type AMMUpdatePositionMarginArgs = {
   tickLower: number;
   tickUpper: number;
   marginDelta: BigNumber;
+};
+
+export type AMMSettlePositionArgs = {
+  signer: Signer;
+  owner: string;
+  tickLower: number;
+  tickUpper: number;
 };
 
 export type AMMSwapArgs = {
@@ -68,14 +77,14 @@ class AMM {
   public readonly id: string;
   public readonly marginEngineAddress: string;
   public readonly fcmAddress: string;
-  public readonly rateOracleAddress: string;
+  public readonly rateOracle: RateOracle;
   public readonly protocolName: string;
   public readonly createdTimestamp: BigintIsh;
   public readonly updatedTimestamp: BigintIsh;
   public readonly termStartTimestamp: JSBI;
   public readonly termEndTimestamp: JSBI;
   public readonly underlyingToken: Token;
-  public readonly sqrtRatioX96: JSBI;
+  public readonly sqrtPriceX96: JSBI;
   public readonly liquidity: JSBI;
   public readonly tickSpacing: JSBI;
   public readonly tick: JSBI;
@@ -87,14 +96,14 @@ class AMM {
     id,
     marginEngineAddress,
     fcmAddress,
-    rateOracleAddress,
+    rateOracle,
     protocolName,
     createdTimestamp,
     updatedTimestamp,
     termStartTimestamp,
     termEndTimestamp,
     underlyingToken,
-    sqrtRatioX96,
+    sqrtPriceX96,
     liquidity,
     tick,
     tickSpacing,
@@ -103,14 +112,14 @@ class AMM {
     this.id = id;
     this.marginEngineAddress = marginEngineAddress;
     this.fcmAddress = fcmAddress;
-    this.rateOracleAddress = rateOracleAddress;
+    this.rateOracle = rateOracle;
     this.protocolName = protocolName;
     this.createdTimestamp = createdTimestamp;
     this.updatedTimestamp = updatedTimestamp;
     this.termStartTimestamp = termStartTimestamp;
     this.termEndTimestamp = termEndTimestamp;
     this.underlyingToken = underlyingToken;
-    this.sqrtRatioX96 = JSBI.BigInt(sqrtRatioX96);
+    this.sqrtPriceX96 = JSBI.BigInt(sqrtPriceX96);
     this.liquidity = JSBI.BigInt(liquidity);
     this.tickSpacing = tickSpacing;
     this.tick = tick;
@@ -125,8 +134,8 @@ class AMM {
     sqrtPriceLimitX96,
     tickLower,
     tickUpper,
-  }: AMMGetMinimumMarginRequirementArgs) {
-    const peripheryContract = Periphery__factory.connect(PERIPHERY_ADDRESS, signer);
+  }: AMMGetMinimumMarginRequirementArgs) : Promise<BigNumber> {
+    const peripheryContract = peripheryFactory.connect(PERIPHERY_ADDRESS, signer);
     const marginEngineAddress: string = this.marginEngineAddress;
 
     const swapPeripheryParams: SwapPeripheryParams = {
@@ -163,14 +172,24 @@ class AMM {
     return marginRequirement;
   }
 
+  public async settlePosition({ signer, owner, tickLower, tickUpper }: AMMSettlePositionArgs) : Promise<ContractTransaction>  {
+    const marginEngineContract = marginEngineFactory.connect(this.marginEngineAddress, signer);
+    const settlePositionReceipt = await marginEngineContract.settlePosition(
+      tickLower,
+      tickUpper,
+      owner,
+    );
+    return settlePositionReceipt;
+  }
+
   public async updatePositionMargin({
     signer,
     owner,
     tickLower,
     tickUpper,
     marginDelta,
-  }: AMMUpdatePositionMarginArgs) {
-    const marginEngineContract = MarginEngine__factory.connect(this.marginEngineAddress, signer);
+  }: AMMUpdatePositionMarginArgs) : Promise<ContractTransaction>  {
+    const marginEngineContract = marginEngineFactory.connect(this.marginEngineAddress, signer);
     const updatePositionMarginReceipt = await marginEngineContract.updatePositionMargin(
       owner,
       tickLower,
@@ -188,8 +207,8 @@ class AMM {
     tickUpper,
     notional,
     isMint,
-  }: AMMMintOrBurnArgs) {
-    const peripheryContract = Periphery__factory.connect(PERIPHERY_ADDRESS, signer);
+  }: AMMMintOrBurnArgs) : Promise<ContractTransaction> {
+    const peripheryContract = peripheryFactory.connect(PERIPHERY_ADDRESS, signer);
     const marginEngineAddress: string = this.marginEngineAddress;
 
     const mintOrBurnParams: MintOrBurnParams = {
@@ -201,7 +220,7 @@ class AMM {
       isMint,
     };
 
-    const mintOrBurnReceipt = await peripheryContract.mintOrBurn(mintOrBurnParams);
+    const mintOrBurnReceipt: ContractTransaction = await peripheryContract.mintOrBurn(mintOrBurnParams);
 
     return mintOrBurnReceipt;
   }
@@ -215,7 +234,7 @@ class AMM {
     tickLower = 0,
     tickUpper = 0,
   }: AMMSwapArgs) {
-    const peripheryContract = Periphery__factory.connect(PERIPHERY_ADDRESS, signer);
+    const peripheryContract = peripheryFactory.connect(PERIPHERY_ADDRESS, signer);
     const marginEngineAddress: string = this.marginEngineAddress;
 
     const swapPeripheryParams: SwapPeripheryParams = {
@@ -235,14 +254,14 @@ class AMM {
   public get fixedRate(): Price {
     return (
       this._fixedRate ??
-      (this._fixedRate = new Price(JSBI.multiply(this.sqrtRatioX96, this.sqrtRatioX96), Q192))
+      (this._fixedRate = new Price(JSBI.multiply(this.sqrtPriceX96, this.sqrtPriceX96), Q192))
     );
   }
 
   public get price(): Price {
     return (
       this._price ??
-      (this._price = new Price(Q192, JSBI.multiply(this.sqrtRatioX96, this.sqrtRatioX96)))
+      (this._price = new Price(Q192, JSBI.multiply(this.sqrtPriceX96, this.sqrtPriceX96)))
     );
   }
 }
