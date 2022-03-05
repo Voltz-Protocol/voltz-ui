@@ -43,7 +43,6 @@ var jsbi_1 = __importDefault(require("jsbi"));
 var ethers_1 = require("ethers");
 var constants_1 = require("../constants");
 var price_1 = require("./fractions/price");
-// eslint-disable-next-line no-use-before-define
 var typechain_1 = require("../typechain");
 var AMM = /** @class */ (function () {
     function AMM(_a) {

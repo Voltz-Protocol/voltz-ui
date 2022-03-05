@@ -27,7 +27,6 @@ export type Amm = {
   fcmAddress: Scalars['String'];
   id: Scalars['ID'];
   liquidity: Scalars['BigInt'];
-  marginEngineAddress: Scalars['String'];
   mints: Array<Mint>;
   rateOracle: RateOracle;
   sqrtPriceX96: Scalars['BigInt'];
@@ -106,20 +105,6 @@ export type Amm_Filter = {
   liquidity_lte?: InputMaybe<Scalars['BigInt']>;
   liquidity_not?: InputMaybe<Scalars['BigInt']>;
   liquidity_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  marginEngineAddress?: InputMaybe<Scalars['String']>;
-  marginEngineAddress_contains?: InputMaybe<Scalars['String']>;
-  marginEngineAddress_ends_with?: InputMaybe<Scalars['String']>;
-  marginEngineAddress_gt?: InputMaybe<Scalars['String']>;
-  marginEngineAddress_gte?: InputMaybe<Scalars['String']>;
-  marginEngineAddress_in?: InputMaybe<Array<Scalars['String']>>;
-  marginEngineAddress_lt?: InputMaybe<Scalars['String']>;
-  marginEngineAddress_lte?: InputMaybe<Scalars['String']>;
-  marginEngineAddress_not?: InputMaybe<Scalars['String']>;
-  marginEngineAddress_not_contains?: InputMaybe<Scalars['String']>;
-  marginEngineAddress_not_ends_with?: InputMaybe<Scalars['String']>;
-  marginEngineAddress_not_in?: InputMaybe<Array<Scalars['String']>>;
-  marginEngineAddress_not_starts_with?: InputMaybe<Scalars['String']>;
-  marginEngineAddress_starts_with?: InputMaybe<Scalars['String']>;
   rateOracle?: InputMaybe<Scalars['String']>;
   rateOracle_contains?: InputMaybe<Scalars['String']>;
   rateOracle_ends_with?: InputMaybe<Scalars['String']>;
@@ -198,7 +183,6 @@ export enum Amm_OrderBy {
   FcmAddress = 'fcmAddress',
   Id = 'id',
   Liquidity = 'liquidity',
-  MarginEngineAddress = 'marginEngineAddress',
   Mints = 'mints',
   RateOracle = 'rateOracle',
   SqrtPriceX96 = 'sqrtPriceX96',
@@ -1806,21 +1790,21 @@ export type GetAmMsQueryVariables = Exact<{
 }>;
 
 
-export type GetAmMsQuery = { __typename?: 'Query', amms: Array<{ __typename?: 'AMM', id: string, createdTimestamp: any, updatedTimestamp: any, fcmAddress: string, marginEngineAddress: string, termStartTimestamp: any, termEndTimestamp: any, tickSpacing: any, sqrtPriceX96: any, liquidity: any, tick: any, txCount: any, rateOracle: { __typename?: 'RateOracle', id: string, token: { __typename?: 'UnderlyingToken', id: string, name: string } } }> };
+export type GetAmMsQuery = { __typename?: 'Query', amms: Array<{ __typename?: 'AMM', id: string, createdTimestamp: any, updatedTimestamp: any, fcmAddress: string, termStartTimestamp: any, termEndTimestamp: any, tickSpacing: any, sqrtPriceX96: any, liquidity: any, tick: any, txCount: any, rateOracle: { __typename?: 'RateOracle', id: string, token: { __typename?: 'UnderlyingToken', id: string, name: string } } }> };
 
 export type GetBurnsQueryVariables = Exact<{
-  orderBy: Burn_OrderBy;
+  positionId?: InputMaybe<Scalars['String']>;
 }>;
 
 
-export type GetBurnsQuery = { __typename?: 'Query', burns: Array<{ __typename?: 'Burn', id: string, sender: string, amount: any, transaction: { __typename?: 'Transaction', id: string, blockNumber: any, timestamp: any }, amm: { __typename?: 'AMM', id: string }, position: { __typename?: 'Position', id: string }, tickLower: { __typename?: 'Tick', id: string, value: any }, tickUpper: { __typename?: 'Tick', id: string, value: any } }> };
+export type GetBurnsQuery = { __typename?: 'Query', burns: Array<{ __typename?: 'Burn', id: string, sender: string, amount: any, transaction: { __typename?: 'Transaction', id: string, blockNumber: any, timestamp: any }, amm: { __typename?: 'AMM', id: string }, position: { __typename?: 'Position', id: string } }> };
 
 export type GetMintsQueryVariables = Exact<{
-  orderBy: Mint_OrderBy;
+  positionId: Scalars['String'];
 }>;
 
 
-export type GetMintsQuery = { __typename?: 'Query', mints: Array<{ __typename?: 'Mint', id: string, sender: string, amount: any, transaction: { __typename?: 'Transaction', id: string, blockNumber: any, timestamp: any }, amm: { __typename?: 'AMM', id: string }, position: { __typename?: 'Position', id: string }, tickLower: { __typename?: 'Tick', id: string, value: any }, tickUpper: { __typename?: 'Tick', id: string, value: any } }> };
+export type GetMintsQuery = { __typename?: 'Query', mints: Array<{ __typename?: 'Mint', id: string, sender: string, amount: any, transaction: { __typename?: 'Transaction', id: string, blockNumber: any, timestamp: any }, amm: { __typename?: 'AMM', id: string }, position: { __typename?: 'Position', id: string } }> };
 
 export type GetPositionSnapshotsQueryVariables = Exact<{
   orderBy: PositionSnapshot_OrderBy;
@@ -1837,7 +1821,7 @@ export type GetPositionsQueryVariables = Exact<{
 export type GetPositionsQuery = { __typename?: 'Query', positions: Array<{ __typename?: 'Position', id: string, createdTimestamp: any, updatedTimestamp: any, liquidity: any, margin: any, fixedTokenBalance: any, variableTokenBalance: any, isLiquidityProvider: boolean, isSettled: boolean, isEmpty: boolean, snapshotCount: any, owner: { __typename?: 'Wallet', id: string }, amm: { __typename?: 'AMM', id: string }, tickLower: { __typename?: 'Tick', id: string, value: any }, tickUpper: { __typename?: 'Tick', id: string, value: any }, burns: Array<{ __typename?: 'Burn', id: string }>, mints: Array<{ __typename?: 'Mint', id: string }>, swaps: Array<{ __typename?: 'Swap', id: string }> }> };
 
 export type GetSwapsQueryVariables = Exact<{
-  orderBy: Swap_OrderBy;
+  positionId: Scalars['String'];
 }>;
 
 
@@ -2046,7 +2030,6 @@ export type AmmResolvers<ContextType = any, ParentType extends ResolversParentTy
   fcmAddress?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   liquidity?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  marginEngineAddress?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   mints?: Resolver<Array<ResolversTypes['Mint']>, ParentType, ContextType, RequireFields<AmmMintsArgs, 'first' | 'skip'>>;
   rateOracle?: Resolver<ResolversTypes['RateOracle'], ParentType, ContextType>;
   sqrtPriceX96?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -2356,7 +2339,6 @@ export const GetAmMsDocument = gql`
     createdTimestamp
     updatedTimestamp
     fcmAddress
-    marginEngineAddress
     rateOracle {
       id
       token {
@@ -2403,8 +2385,8 @@ export type GetAmMsQueryHookResult = ReturnType<typeof useGetAmMsQuery>;
 export type GetAmMsLazyQueryHookResult = ReturnType<typeof useGetAmMsLazyQuery>;
 export type GetAmMsQueryResult = Apollo.QueryResult<GetAmMsQuery, GetAmMsQueryVariables>;
 export const GetBurnsDocument = gql`
-    query GetBurns($orderBy: Burn_orderBy!) {
-  burns(first: 100, orderBy: $orderBy, orderDirection: asc) {
+    query GetBurns($positionId: String) {
+  burns(where: {position: $positionId}) {
     id
     transaction {
       id
@@ -2418,14 +2400,6 @@ export const GetBurnsDocument = gql`
       id
     }
     sender
-    tickLower {
-      id
-      value
-    }
-    tickUpper {
-      id
-      value
-    }
     amount
   }
 }
@@ -2443,11 +2417,11 @@ export const GetBurnsDocument = gql`
  * @example
  * const { data, loading, error } = useGetBurnsQuery({
  *   variables: {
- *      orderBy: // value for 'orderBy'
+ *      positionId: // value for 'positionId'
  *   },
  * });
  */
-export function useGetBurnsQuery(baseOptions: Apollo.QueryHookOptions<GetBurnsQuery, GetBurnsQueryVariables>) {
+export function useGetBurnsQuery(baseOptions?: Apollo.QueryHookOptions<GetBurnsQuery, GetBurnsQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetBurnsQuery, GetBurnsQueryVariables>(GetBurnsDocument, options);
       }
@@ -2459,8 +2433,8 @@ export type GetBurnsQueryHookResult = ReturnType<typeof useGetBurnsQuery>;
 export type GetBurnsLazyQueryHookResult = ReturnType<typeof useGetBurnsLazyQuery>;
 export type GetBurnsQueryResult = Apollo.QueryResult<GetBurnsQuery, GetBurnsQueryVariables>;
 export const GetMintsDocument = gql`
-    query GetMints($orderBy: Mint_orderBy!) {
-  mints(first: 100, orderBy: $orderBy, orderDirection: asc) {
+    query GetMints($positionId: String!) {
+  mints(where: {position: $positionId}) {
     id
     transaction {
       id
@@ -2474,14 +2448,6 @@ export const GetMintsDocument = gql`
       id
     }
     sender
-    tickLower {
-      id
-      value
-    }
-    tickUpper {
-      id
-      value
-    }
     amount
   }
 }
@@ -2499,7 +2465,7 @@ export const GetMintsDocument = gql`
  * @example
  * const { data, loading, error } = useGetMintsQuery({
  *   variables: {
- *      orderBy: // value for 'orderBy'
+ *      positionId: // value for 'positionId'
  *   },
  * });
  */
@@ -2628,8 +2594,8 @@ export type GetPositionsQueryHookResult = ReturnType<typeof useGetPositionsQuery
 export type GetPositionsLazyQueryHookResult = ReturnType<typeof useGetPositionsLazyQuery>;
 export type GetPositionsQueryResult = Apollo.QueryResult<GetPositionsQuery, GetPositionsQueryVariables>;
 export const GetSwapsDocument = gql`
-    query GetSwaps($orderBy: Swap_orderBy!) {
-  swaps(first: 100, orderBy: $orderBy, orderDirection: asc) {
+    query GetSwaps($positionId: String!) {
+  swaps(where: {position: $positionId}) {
     id
     transaction {
       id
@@ -2663,7 +2629,7 @@ export const GetSwapsDocument = gql`
  * @example
  * const { data, loading, error } = useGetSwapsQuery({
  *   variables: {
- *      orderBy: // value for 'orderBy'
+ *      positionId: // value for 'positionId'
  *   },
  * });
  */

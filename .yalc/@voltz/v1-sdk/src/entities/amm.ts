@@ -4,7 +4,6 @@ import { BigNumber, ContractTransaction, Signer } from 'ethers';
 import { BigintIsh } from '../types';
 import { PERIPHERY_ADDRESS, Q192 } from '../constants';
 import { Price } from './fractions/price';
-// eslint-disable-next-line no-use-before-define
 import { Periphery__factory as peripheryFactory, MarginEngine__factory as marginEngineFactory } from '../typechain';
 import { SwapPeripheryParams, MintOrBurnParams } from '../utils/interfaces';
 import Token from './token';

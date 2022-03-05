@@ -1,5 +1,5 @@
-query GetBurns($orderBy: Burn_orderBy!, $id: ID!) {
-  burns(first: 100, where: { position: { id: {_eq: $id} } }, orderBy: $orderBy, orderDirection: asc) {
+query GetBurns($positionId: String) {
+  burns(where: { position: $positionId } ) {
     id
     transaction {
       id
@@ -13,14 +13,6 @@ query GetBurns($orderBy: Burn_orderBy!, $id: ID!) {
       id
     }
     sender
-    tickLower {
-      id
-      value
-    }
-    tickUpper {
-      id
-      value
-    }
     amount
   }
 }

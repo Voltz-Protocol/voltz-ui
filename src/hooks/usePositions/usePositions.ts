@@ -2,7 +2,7 @@ import { DeepPartial } from 'utility-types';
 import { Position as PositionSDK } from '@voltz/v1-sdk';
 import { useGetPositionsQuery, Position_OrderBy } from '@graphql';
 
-export type UsePositionArgs = {};
+export type UsePositionsArgs = {};
 
 export type UsePositionsResult = {
     positions?: DeepPartial<PositionSDK>[];
@@ -10,7 +10,7 @@ export type UsePositionsResult = {
     error: boolean;
   };
 
-  const usePositions = (): UsePositionsResult => {
+const usePositions = (): UsePositionsResult => {
     const { data, loading, error } = useGetPositionsQuery({ variables: { orderBy: Position_OrderBy.Id } });
     
     if (!data) {
