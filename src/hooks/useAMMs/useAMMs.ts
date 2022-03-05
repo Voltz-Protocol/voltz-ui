@@ -18,6 +18,8 @@ const useAMMs = (): UseAMMsResult => {
     return { loading, error: !!error };
   }
 
+  // todo: need to retrieve and set the margin engiene address below
+  
   const amms = data.amms.map(
     ({
       rateOracle: {
@@ -30,6 +32,7 @@ const useAMMs = (): UseAMMsResult => {
         rateOracle: new RateOracle({ id: rateOracleAddress }),
         protocolName: 'aUSDC',
         underlyingToken: new Token({ id: tokenAddress, name: tokenName }),
+        marginEngineAddress: "",
         ...rest,
       }),
   );

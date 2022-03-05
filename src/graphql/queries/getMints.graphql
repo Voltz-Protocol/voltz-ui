@@ -10,7 +10,7 @@ query GetMints($positionId: String!) {
       id
     }
     position {
-      id
+      ids
     }
     sender
     amount
