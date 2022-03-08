@@ -5,14 +5,14 @@ import timestampWadToDateTime from './timestampWadToDateTime';
 
 const mapAmmToAmmTableDatum = ({
   id,
-  protocolName,
+  protocol,
   termStartTimestamp,
   termEndTimestamp,
   fixedRate,
 }: AMM): AMMTableDatum => {
   return {
     id,
-    protocol: protocolName,
+    protocol,
     startDate: timestampWadToDateTime(termStartTimestamp),
     endDate: timestampWadToDateTime(termEndTimestamp),
     // fixedApr: parseFloat(fixedRate.toFixed(2)), // todo: fix type
