@@ -7,7 +7,7 @@ export const extractErrorMessage = (error: any): string | null => {
     return null;
   }
 
-  if (error.data.message) {
+  if (error.data && error.data.message) {
     return error.data.message.toString();
   }
 
@@ -19,7 +19,12 @@ export const extractErrorMessage = (error: any): string | null => {
 };
 
 export const getError = (message: string): string => {
+  console.log("error message", message);
   if (message.includes('LOK')) {
+    return 'The pool has not been initialized yet';
+  }
+
+  if (message.includes('CanOnlyTradeIfUnlocked')) {
     return 'The pool has not been initialized yet';
   }
 
@@ -67,7 +72,7 @@ export const getError = (message: string): string => {
     return 'Internal error: Margin Calculator parameters not set';
   }
 
-   if (message.includes('SPL')) {
+  if (message.includes('SPL')) {
     return 'No notional available in that direction';
   }
 
@@ -202,7 +207,7 @@ export const getError = (message: string): string => {
   if (message.includes('CT_CALLER_MUST_BE_LENDING_POOL')) {
     return 'Internal error: Caller must lending pool';
   }
-  
+
   if (message.includes('CT_INVALID_MINT_AMOUNT')) {
     return 'Internal error: Invalid aToken amount to mint';
   }

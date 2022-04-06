@@ -283,17 +283,26 @@ class AMM {
     ).margin;
 
     const scaledCurrentMargin = parseFloat(utils.formatEther(currentMargin));
+    const scaledFee = parseFloat(utils.formatEther(fee));
+    const scaledAvailableNotional = parseFloat(utils.formatEther(availableNotional));
     const scaledMarginRequirement = parseFloat(utils.formatEther(marginRequirement));
 
+    const suggestedMargin = (scaledMarginRequirement + scaledFee) * 1.01;
+
     const additionalMargin =
-      scaledMarginRequirement > scaledCurrentMargin
-        ? scaledMarginRequirement - scaledCurrentMargin
+      suggestedMargin > scaledCurrentMargin
+        ? suggestedMargin - scaledCurrentMargin
         : 0;
+
+    console.log("scaledCurrentMargin", scaledCurrentMargin);
+    console.log("suggestedMargin", suggestedMargin);
+    console.log("additionalMargin", additionalMargin);
+    console.log("scaledFee", scaledFee);
 
     return {
       marginRequirement: additionalMargin,
-      availableNotional: parseFloat(utils.formatEther(availableNotional)),
-      fee: parseFloat(utils.formatEther(fee)),
+      availableNotional: scaledAvailableNotional,
+      fee: scaledFee,
       slippage: fixedRateDeltaRaw,
     };
   }
@@ -317,7 +326,8 @@ class AMM {
       tickUpper,
     );
 
-    return settlePositionTransaction.wait();
+    const receipt = await settlePositionTransaction.wait();
+    return receipt;
   }
 
   private scale(value: number): string {
@@ -360,7 +370,8 @@ class AMM {
       scaledMarginDelta,
     );
 
-    return updatePositionMarginTransaction.wait();
+    const receipt = await updatePositionMarginTransaction.wait();
+    return receipt;
   }
 
   public async liquidatePosition({
@@ -378,7 +389,8 @@ class AMM {
     const marginEngineContract = marginEngineFactory.connect(this.marginEngineAddress, this.signer);
     const liquidatePositionTransaction = await marginEngineContract.liquidatePosition(owner, tickLower, tickUpper);
 
-    return liquidatePositionTransaction.wait();
+    const receipt = await liquidatePositionTransaction.wait();
+    return receipt;
   }
 
   public async getLiquidationThreshold({
@@ -401,7 +413,8 @@ class AMM {
       false,
     );
 
-    return parseFloat(utils.formatEther(threshold));
+    const scaledLiquidationThreshold = parseFloat(utils.formatEther(threshold));
+    return scaledLiquidationThreshold;
   }
 
   public async getMinimumMarginRequirementPostMint({
@@ -430,9 +443,12 @@ class AMM {
     }
 
     const signerAddress = await this.signer.getAddress();
+
     const { closestUsableTick: tickUpper } = this.closestTickAndFixedRate(fixedLow);
     const { closestUsableTick: tickLower } = this.closestTickAndFixedRate(fixedHigh);
+
     const peripheryContract = peripheryFactory.connect(PERIPHERY_ADDRESS, this.signer);
+
     const scaledNotional = this.scale(notional);
     const mintOrBurnParams: MintOrBurnParams = {
       marginEngine: this.marginEngineAddress,
@@ -478,11 +494,17 @@ class AMM {
     const scaledCurrentMargin = parseFloat(utils.formatEther(currentMargin));
     const scaledMarginRequirement = parseFloat(utils.formatEther(marginRequirement));
 
-    if (scaledMarginRequirement > scaledCurrentMargin) {
-      return scaledMarginRequirement - scaledCurrentMargin;
-    } else {
-      return 0;
-    }
+    const suggestedMargin = scaledMarginRequirement * 1.01;
+    const additionalMargin =
+      suggestedMargin > scaledCurrentMargin
+        ? suggestedMargin - scaledCurrentMargin
+        : 0;
+
+    console.log("scaledCurrentMargin", scaledCurrentMargin);
+    console.log("suggestedMargin", suggestedMargin);
+    console.log("additionalMargin", additionalMargin);
+
+    return additionalMargin;
   }
 
   public async mint({
@@ -542,6 +564,8 @@ class AMM {
       marginDelta: _marginDelta,
     };
 
+    console.log(mintOrBurnParams);
+    console.log("before static call");
     await peripheryContract.callStatic.mintOrBurn(mintOrBurnParams).catch((error) => {
       const message = extractErrorMessage(error);
 
@@ -552,6 +576,7 @@ class AMM {
       throw new Error(getError(message));
     });
 
+    console.log("before actual call");
     const mintTransaction = await peripheryContract.mintOrBurn(mintOrBurnParams).catch((error) => {
       const message = extractErrorMessage(error);
 
@@ -562,7 +587,10 @@ class AMM {
       throw new Error(getError(message));
     });
 
-    return mintTransaction.wait();
+    console.log("after actual call");
+
+    const receipt = await mintTransaction.wait();
+    return receipt;
   }
 
   public async burn({
@@ -631,7 +659,8 @@ class AMM {
       throw new Error(getError(message));
     });
 
-    return burnTransaction.wait();
+    const receipt = await burnTransaction.wait()
+    return receipt;
   }
 
   public async approveFCM(): Promise<ContractReceipt | void> {
@@ -649,7 +678,8 @@ class AMM {
 
     const approvalTransaction = await factoryContract.setApproval(this.fcmAddress, true);
 
-    return approvalTransaction.wait();
+    const receipt = await approvalTransaction.wait();
+    return receipt;
   }
 
   public async approveERC20(
@@ -673,7 +703,8 @@ class AMM {
 
     const approvalTransaction = await token.approve(addressToApprove, marginDelta);
 
-    return approvalTransaction.wait();
+    const receipt = await approvalTransaction.wait();
+    return receipt;
   }
 
   public async swap({
@@ -748,7 +779,7 @@ class AMM {
       marginDelta: scaledMarginDelta,
     };
 
-    await peripheryContract.callStatic.swap(swapPeripheryParams).catch(async (error: any) => {
+    await peripheryContract.callStatic.swap(swapPeripheryParams).catch((error: any) => {
       const message = extractErrorMessage(error);
 
       if (isNull(message)) {
@@ -769,7 +800,8 @@ class AMM {
       throw new Error(getError(message));
     });
 
-    return swapTransaction.wait();
+    const receipt = await swapTransaction.wait();
+    return receipt;
   }
 
   public async FCMSwap({
@@ -802,7 +834,8 @@ class AMM {
       sqrtPriceLimitX96,
     );
 
-    return fcmSwapTransaction.wait();
+    const receipt = await fcmSwapTransaction.wait();
+    return receipt;
   }
 
   public async FCMUnwind({
@@ -834,7 +867,8 @@ class AMM {
       sqrtPriceLimitX96,
     );
 
-    return fcmUnwindTransaction.wait();
+    const receipt = await fcmUnwindTransaction.wait();
+    return receipt;
   }
 
   public async settleFCMTrader(): Promise<ContractReceipt> {
@@ -845,7 +879,8 @@ class AMM {
     const fcmContract = fcmFactory.connect(this.fcmAddress, this.signer);
     const fcmSettleTraderTransaction = await fcmContract.settleTrader();
 
-    return fcmSettleTraderTransaction.wait();
+    const receipt = await fcmSettleTraderTransaction.wait();
+    return receipt;
   }
 
   public get startDateTime(): DateTime {

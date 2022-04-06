@@ -8,7 +8,7 @@ var extractErrorMessage = function (error) {
     if (!error.message && !error.data.message) {
         return null;
     }
-    if (error.data.message) {
+    if (error.data && error.data.message) {
         return error.data.message.toString();
     }
     if (error.message) {
@@ -18,7 +18,11 @@ var extractErrorMessage = function (error) {
 };
 exports.extractErrorMessage = extractErrorMessage;
 var getError = function (message) {
+    console.log("error message", message);
     if (message.includes('LOK')) {
+        return 'The pool has not been initialized yet';
+    }
+    if (message.includes('CanOnlyTradeIfUnlocked')) {
         return 'The pool has not been initialized yet';
     }
     if (message.includes('closeToOrBeyondMaturity')) {
