@@ -3,8 +3,12 @@ query GetAMMs($orderBy: AMM_orderBy!) {
     id
     createdTimestamp
     updatedTimestamp
-    fcmAddress
-    marginEngineAddress
+    fcm {
+      id
+    }
+    marginEngine {
+      id
+    }
     rateOracle {
       id
       protocolId
@@ -17,8 +21,6 @@ query GetAMMs($orderBy: AMM_orderBy!) {
     termStartTimestamp
     termEndTimestamp
     tickSpacing
-    sqrtPriceX96
-    liquidity
     tick
     txCount
   }

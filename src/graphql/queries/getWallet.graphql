@@ -49,7 +49,7 @@ query GetWallet($id: ID!) {
       variableTokenBalance
       accumulatedFees
 
-      isLiquidityProvider
+      agent
       isSettled
       
       mints {

@@ -58,7 +58,7 @@ const usePositions = (): usePositionsResult => {
           fixedTokenBalance,
           variableTokenBalance,
           accumulatedFees,
-          isLiquidityProvider,
+          agent: positionAgent,
           isSettled,
           mints,
           burns,
@@ -78,7 +78,7 @@ const usePositions = (): usePositionsResult => {
             fixedTokenBalance: fixedTokenBalance as JSBI,
             variableTokenBalance: variableTokenBalance as JSBI,
             accumulatedFees: accumulatedFees as JSBI,
-            isLiquidityProvider,
+            agent: parseInt(positionAgent as string),
             isSettled,
             owner: ownerAddress,
             amm: new AugmentedAMM({
@@ -171,17 +171,16 @@ const usePositions = (): usePositionsResult => {
   }, [positionCount, loading, error, isSignerAvailable]);
   const positionsByAgent = useMemo(() => {
     return positions?.filter(({ isLiquidityProvider, effectiveFixedTokenBalance }) => {
-      return true;
-      // switch (agent) {
-        // case Agents.LIQUIDITY_PROVIDER:
-        //   return isLiquidityProvider;
+      switch (agent) {
+        case Agents.LIQUIDITY_PROVIDER:
+          return isLiquidityProvider;
 
-        // case Agents.FIXED_TRADER:
-        //   return effectiveFixedTokenBalance > 0;
+        case Agents.FIXED_TRADER:
+          return effectiveFixedTokenBalance > 0;
 
-        // case Agents.VARIABLE_TRADER:
-        //   return effectiveFixedTokenBalance < 0;
-      // }
+        case Agents.VARIABLE_TRADER:
+          return effectiveFixedTokenBalance < 0;
+      }
     });
   }, [positions, agent]);
 
