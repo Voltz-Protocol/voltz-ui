@@ -31,6 +31,7 @@ const ConnectedPositionTable: React.FunctionComponent<ConnectedAMMTableProps> = 
   const { positionsByAgent, loading, error } = usePositions();
   const pages = 0;
   const [transactionId, setTransactionId] = useState<string | undefined>();
+  const activeTransaction = useSelector(selectors.transactionSelector)(transactionId);
 
   const dispatch = useDispatch();
   

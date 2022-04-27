@@ -70,13 +70,30 @@ const PositionTableRow: React.FunctionComponent<PositionTableRowProps> = ({
           const token = datum.protocol.substring(1);
 
           if (field === 'maturity') {
-            return (
-              <MaturityInformation
+            if (DateTime.now() >= datum.endDate) {
+              if (datum.settled) {
+                return <TableCell align="center">
+                  <Button variant="contained">
+                    <Typography agentStyling variant="body2">SETTLED</Typography>
+                  </Button>
+                </TableCell>
+              }
+              else {
+                return <TableCell align="center">
+                  <Button variant="contained" onClick={handleSubmit}>
+                    <Typography agentStyling variant="body2">SETTLE</Typography>
+                  </Button>
+                </TableCell>
+              }
+              
+            }
+            else {
+              return <MaturityInformation
                 label={label}
                 startDate={datum.startDate}
                 endDate={datum.endDate}
               />
-            );
+            }
           }
 
           if (field === 'estimatedCashflow') {
@@ -130,16 +147,6 @@ const PositionTableRow: React.FunctionComponent<PositionTableRowProps> = ({
         return <TableCell key={field}>{renderDisplay()}</TableCell>;
       })}
 
-      {DateTime.now() >= datum.endDate && (
-            <TableCell align="center">
-            <Button variant="contained" onClick={handleSubmit}>
-              Settle 
-          Settle 
-              Settle 
-            </Button>
-          </TableCell>
-        )
-      }
     </TableRow>
   );
 };
