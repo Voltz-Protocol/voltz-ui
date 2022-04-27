@@ -1,28 +1,32 @@
-import React from 'react';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import { SystemStyleObject, Theme } from '@mui/system';
-
 import { Agents } from '@components/contexts';
-import { Typography } from '@components/atomic';
+import { Typography, Button } from '@components/atomic';
 import { MaturityInformation } from '@components/composite';
-import { useAgent } from '@hooks';
 import { PositionTableDatum } from '../../types';
 import { lpLabels } from '../../constants';
 import { traderLabels } from '../../constants';
 import { PositionTableFields } from '../../types';
 import { EstimatedCashflow, FixedAPR, CurrentMargin } from './components';
+import React from 'react';
+import { useAgent } from '@hooks';
+import { DateTime } from 'luxon';
+
+
 
 export type PositionTableRowProps = {
   datum: PositionTableDatum;
   index: number;
   onSelect: () => void;
+  handleSubmit: () => void;
 };
 
 const PositionTableRow: React.FunctionComponent<PositionTableRowProps> = ({
   datum,
   index,
   onSelect,
+  handleSubmit
 }) => {
   const { agent } = useAgent();
   const variant = agent === Agents.LIQUIDITY_PROVIDER ? 'darker' : 'main';
@@ -36,13 +40,13 @@ const PositionTableRow: React.FunctionComponent<PositionTableRowProps> = ({
     switch (variant) {
       case 'main':
         return {
-          backgroundColor: `secondary.darken040`,
+          backgroundColor: `secondary.darken040`, // this affects the colour of the position rows in the trader positions
           borderRadius: 2
         };
 
       case 'darker':
         return {
-          backgroundColor: `secondary.darken050`,
+          backgroundColor: `secondary.darken050`, // this affects the colour of the positions rows in the LP positions 
           borderRadius: 2
         };
 
@@ -78,7 +82,7 @@ const PositionTableRow: React.FunctionComponent<PositionTableRowProps> = ({
           if (field === 'estimatedCashflow') {
             return <EstimatedCashflow tickLower={datum.fixedLower} tickUpper={datum.fixedUpper} token={token} />;
           }
-
+          // The below lines are responsible for the current margin column of the LP positions: this component contains the Edit button as well. 
           if (field === 'margin') {
             return <CurrentMargin tickLower={datum.fixedLower} tickUpper={datum.fixedUpper} token={token} onSelect={onSelect} displayEditButton={ agent !== Agents.LIQUIDITY_PROVIDER} />;
           }
@@ -126,12 +130,16 @@ const PositionTableRow: React.FunctionComponent<PositionTableRowProps> = ({
         return <TableCell key={field}>{renderDisplay()}</TableCell>;
       })}
 
-      {/* todo: bring back when needed */}
-      {/* <TableCell align="center">
-        <Button variant="contained" onClick={handleClick}>
-          Hello 
-        </Button>
-      </TableCell> */}
+      {DateTime.now() >= datum.endDate && (
+            <TableCell align="center">
+            <Button variant="contained" onClick={handleSubmit}>
+              Settle 
+          Settle 
+              Settle 
+            </Button>
+          </TableCell>
+        )
+      }
     </TableRow>
   );
 };

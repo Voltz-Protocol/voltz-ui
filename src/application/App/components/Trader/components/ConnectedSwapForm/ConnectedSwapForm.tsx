@@ -19,7 +19,11 @@ export type ConnectedSwapFormProps = {
   onReset: () => void;
 };
 
-const ConnectedSwapForm: React.FunctionComponent<ConnectedSwapFormProps> = ({ amm, onReset, marginEditMode }) => {
+const ConnectedSwapForm: React.FunctionComponent<ConnectedSwapFormProps> = ({ 
+  amm,
+  onReset, 
+  marginEditMode 
+}) => {
   const { agent } = useAgent();
   const navigate = useNavigate();
   const [notional, setNotional] = useState<SwapFormProps['notional']>();
@@ -42,7 +46,6 @@ const ConnectedSwapForm: React.FunctionComponent<ConnectedSwapFormProps> = ({ am
       if (marginEditMode) {
         const updatePositionMargin = actions.updatePositionMarginAction(amm, transaction);
         setTransactionId(updatePositionMargin.payload.transaction.id);
-        // todo: if remove margin, change margin to -margin (delta)
         dispatch(updatePositionMargin);
       } else {
         const swap = actions.swapAction(amm, transaction);
@@ -58,13 +61,18 @@ const ConnectedSwapForm: React.FunctionComponent<ConnectedSwapFormProps> = ({ am
     navigate(`/${routes.PORTFOLIO}`);
   };
 
+  const handleGoBack = () => {
+    const action = actions.closeTransaction(transactionId as string);
+    dispatch(action);
+  }
+
   if (!amm) {
     return null;
   }
 
   if (activeTransaction) {
     return (
-      <PendingTransaction amm={amm} transactionId={transactionId} onComplete={handleComplete} />
+      <PendingTransaction amm={amm} transactionId={transactionId} onComplete={handleComplete} onBack={handleGoBack} />
     );
   }
 
