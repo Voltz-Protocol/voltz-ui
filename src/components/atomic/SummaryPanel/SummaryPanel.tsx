@@ -6,7 +6,7 @@ import colors from '../../../theme/colors';
 interface SummaryPanelProps {
   label?: ReactNode;
   loading?: boolean;
-  rows?: {label: string; value: string}[];
+  rows?: ({label: string; value: string} | undefined)[];
 }
 
 const SummaryPanel = ({ label, loading, rows }: SummaryPanelProps) => {
@@ -32,7 +32,7 @@ const SummaryPanel = ({ label, loading, rows }: SummaryPanelProps) => {
   if (rows) {
     return (
       <Box sx={containerStyles}>
-        {rows.map((row, index) => (
+        {rows.map((row, index) => !!row && (
           <Box sx={rowStyles} key={row.label}>
             <Typography variant="body2" label={index === 0 ? label : undefined}>
               {row.label}

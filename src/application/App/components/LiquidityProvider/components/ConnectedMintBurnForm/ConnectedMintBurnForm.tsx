@@ -10,6 +10,7 @@ import { MintBurnForm, MintBurnFormModes, PendingTransaction } from '@components
 import { updateFixedRate } from './utilities';
 import * as s from './services';
 import { isUndefined } from 'lodash';
+import { BigNumber } from 'ethers';
 
 export type ConnectedMintBurnFormProps = {
   amm: AugmentedAMM;
@@ -134,6 +135,7 @@ const ConnectedMintBurnForm: React.FunctionComponent<ConnectedMintBurnFormProps>
       onChangeMarginAction={form.setMarginAction} 
       onChangeNotional={form.setNotional}
       onSubmit={handleSubmit}
+      positionMargin={position?.margin ? amm.descale(BigNumber.from(position.margin.toString())) : undefined}
       protocol={amm.protocol}
       startDate={amm.startDateTime}
       submitButtonHint={submitButtonHint}

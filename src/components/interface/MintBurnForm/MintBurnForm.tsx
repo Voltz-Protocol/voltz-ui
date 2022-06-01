@@ -38,6 +38,7 @@ export type MintBurnFormProps = {
   onCancel: () => void;
   onChangeMarginAction: (value: MintBurnFormMarginAction) => void;
   onChangeLiquidityAction: (value: MintBurnFormLiquidityAction) => void;
+  positionMargin?: number;
   submitButtonHint: ReactNode;
   submitButtonText: ReactNode;
   tokenApprovals: ReturnType<typeof useTokenApproval>;
@@ -64,6 +65,7 @@ const MintBurnForm: React.FunctionComponent<MintBurnFormProps> = ({
   onCancel,
   onChangeMarginAction,
   onChangeLiquidityAction,
+  positionMargin,
   submitButtonHint,
   submitButtonText,
   tokenApprovals,
@@ -186,6 +188,7 @@ const MintBurnForm: React.FunctionComponent<MintBurnFormProps> = ({
           <MintInfo 
             balance={balance}
             minRequiredMargin={minRequiredMargin}
+            positionMargin={positionMargin}
             loading={minRequiredMarginLoading} 
             underlyingTokenName={underlyingTokenName} 
           />
