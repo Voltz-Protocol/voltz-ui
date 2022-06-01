@@ -24,19 +24,6 @@ const Text = ({ bold, children, green, red }: TextProps) => (
 );
 
 /**
- * Returns true or false if approvals are needed for this user to trade
- * @param tokenApprovals - the token approvals state for this form
- * @param isBurningLiquidity - boolean flag for if the action is to burn liquidity
- * @param isRemovingMargin - boolean flag for if the action is to remove margin
- */
- export const approvalsNeeded = (tokenApprovals: ReturnType<typeof useTokenApproval>, isBurningLiquidity: boolean, isRemovingMargin: boolean) => {
-  if(!isRemovingMargin && !isBurningLiquidity) {
-    return !tokenApprovals.underlyingTokenApprovedForPeriphery;
-  }
-  return false;
-}
-
-/**
  * Returns what action the form is currently set to make (SWAP, FCM_SWAP etc)
  * @param mode - the mode the form is in
  * @param liquidityAction - the liquidity action selected on the form 

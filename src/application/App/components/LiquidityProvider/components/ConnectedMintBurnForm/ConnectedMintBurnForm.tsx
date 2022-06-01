@@ -5,11 +5,10 @@ import { Position } from '@voltz-protocol/v1-sdk/dist/types/entities';
 import { AugmentedAMM } from '@utilities';
 import { routes } from '@routes';
 import { actions, selectors } from '@store';
-import { MintBurnFormLiquidityAction, MintBurnFormMarginAction, useAgent, useAMMContext, useBalance, useDispatch, useMintBurnForm, useSelector, useTokenApproval } from '@hooks';
+import { useAgent, useBalance, useDispatch, useMintBurnForm, useSelector } from '@hooks';
 import { MintBurnForm, MintBurnFormModes, PendingTransaction } from '@components/interface';
 import { updateFixedRate } from './utilities';
 import * as s from './services';
-import { isUndefined } from 'lodash';
 import { BigNumber } from 'ethers';
 
 export type ConnectedMintBurnFormProps = {
@@ -28,25 +27,20 @@ const ConnectedMintBurnForm: React.FunctionComponent<ConnectedMintBurnFormProps>
   const { agent } = useAgent();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { mintMinimumMarginRequirement: { call: loadMintInfo, loading: minRequiredMarginLoading, result: minRequiredMargin } } = useAMMContext();
 
   const balance = useBalance(amm);
   const defaultValues = {
     fixedLow: position ? parseFloat(position.fixedRateLower.toFixed() ) : undefined,
     fixedHigh: position ? parseFloat(position.fixedRateUpper.toFixed() ) : undefined
   }
-  const form = useMintBurnForm(amm, mode, minRequiredMargin || undefined, defaultValues);
-  const tokenApprovals = useTokenApproval(amm, true);
+  const form = useMintBurnForm(amm, mode, defaultValues);
 
   const [transactionId, setTransactionId] = useState<string | undefined>();
   const activeTransaction = useSelector(selectors.transactionSelector)(transactionId);
   const formAction = s.getFormAction(mode, form.state.liquidityAction);
-  const isBurningLiquidity = mode === MintBurnFormModes.EDIT_LIQUIDITY && form.state.liquidityAction === MintBurnFormLiquidityAction.BURN;
-  const isRemovingMargin = mode === MintBurnFormModes.EDIT_MARGIN && form.state.marginAction === MintBurnFormMarginAction.REMOVE;
-  const submitButtonHint = s.getSubmitButtonHint(amm, mode, form, tokenApprovals);
-  const submitButtonText = s.getSubmitButtonText(mode, tokenApprovals, amm, form.state);
 
-  const approvalsNeeded = s.approvalsNeeded(tokenApprovals, isBurningLiquidity, isRemovingMargin);
+  const submitButtonHint = s.getSubmitButtonHint(amm, mode, form, form.tokenApprovals);
+  const submitButtonText = s.getSubmitButtonText(mode, form.tokenApprovals, amm, form.state);
 
   const handleComplete = () => {
     onReset();
@@ -71,9 +65,9 @@ const ConnectedMintBurnForm: React.FunctionComponent<ConnectedMintBurnFormProps>
   const handleSubmit = () => {
     if(!form.isValid) return;
 
-    if(approvalsNeeded) {
-      if(!tokenApprovals.underlyingTokenApprovedForPeriphery) {
-        tokenApprovals.approveUnderlyingTokenForPeriphery();
+    if(form.approvalsNeeded) {
+      if(!form.tokenApprovals.underlyingTokenApprovedForPeriphery) {
+        form.tokenApprovals.approveUnderlyingTokenForPeriphery();
         return;
       }
     }
@@ -82,21 +76,6 @@ const ConnectedMintBurnForm: React.FunctionComponent<ConnectedMintBurnFormProps>
     setTransactionId(action.payload.transaction.id);
     dispatch(action);
   };
-
-  // Load the mint summary info
-  useEffect(() => {
-    if (
-      !isUndefined(form.state.notional) && form.state.notional !== 0 &&
-      !isUndefined(form.state.fixedLow) && form.state.fixedLow !== 0 &&
-      !isUndefined(form.state.fixedHigh) && form.state.fixedHigh !== 0
-    ) {
-      loadMintInfo({ 
-        fixedLow: form.state.fixedLow, 
-        fixedHigh: form.state.fixedHigh, 
-        notional: form.state.notional 
-      });
-    }
-  }, [loadMintInfo, form.state.notional, form.state.fixedLow, form.state.fixedHigh, approvalsNeeded]);
 
   if (!amm) {
     return null;
@@ -111,7 +90,7 @@ const ConnectedMintBurnForm: React.FunctionComponent<ConnectedMintBurnFormProps>
         transactionId={transactionId} 
         onComplete={handleComplete}
         notional={form.state.notional}
-        margin={Math.abs(form.state.margin as number) * (isRemovingMargin ? -1 : 1) }
+        margin={Math.abs(form.state.margin as number) * (form.isRemovingMargin ? -1 : 1) }
         onBack={handleGoBack} 
       />
     );
@@ -125,8 +104,8 @@ const ConnectedMintBurnForm: React.FunctionComponent<ConnectedMintBurnFormProps>
       errors={form.errors}
       mode={mode}
       isFormValid={form.isValid}
-      minRequiredMargin={minRequiredMargin || undefined}
-      minRequiredMarginLoading={minRequiredMarginLoading}
+      minRequiredMargin={form.minRequiredMargin.value}
+      minRequiredMarginLoading={form.minRequiredMargin.loading}
       onCancel={onReset}
       onChangeFixedLow={handleSetFixedLow}
       onChangeFixedHigh={handleSetFixedHigh}
@@ -140,7 +119,7 @@ const ConnectedMintBurnForm: React.FunctionComponent<ConnectedMintBurnFormProps>
       startDate={amm.startDateTime}
       submitButtonHint={submitButtonHint}
       submitButtonText={submitButtonText}
-      tokenApprovals={tokenApprovals}
+      tokenApprovals={form.tokenApprovals}
       underlyingTokenName={amm.underlyingToken.name}
     />
   );

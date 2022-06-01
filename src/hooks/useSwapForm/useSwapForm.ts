@@ -3,7 +3,7 @@ import { SwapFormActions, SwapFormModes } from "@components/interface";
 import { AugmentedAMM } from "@utilities";
 import { isUndefined } from "lodash";
 import { ReactNode, useEffect, useRef, useState } from "react";
-import { MintBurnFormMarginAction } from "../useMintBurnForm";
+import { MintBurnFormMarginAction } from "../useMintBurnForm/useMintBurnForm";
 import { hasEnoughTokens, hasEnoughUnderlyingTokens, lessThan } from "@utilities";
 import { useAgent, useAMMContext, useBalance, useMinRequiredMargin, useTokenApproval } from "@hooks";
 import { InfoPostSwap, Position } from "@voltz-protocol/v1-sdk";
@@ -55,19 +55,20 @@ export const useSwapForm = (
     ? defaultValues.partialCollateralization 
     : true;
 
-  const { agent } = useAgent();
-  const balance = useBalance(amm);
   const [margin, setMargin] = useState<SwapFormState['margin']>(defaultMargin);
   const [marginAction, setMarginAction] = useState<MintBurnFormMarginAction>(defaultMarginAction);
-  const minRequiredMargin = useMinRequiredMargin(amm);
   const [notional, setNotional] = useState<SwapFormState['notional']>(defaultNotional);
   const [partialCollateralization, setPartialCollateralization] = useState<boolean>(defaultPartialCollateralization);
-  const { swapInfo } = useAMMContext();
-  const tokenApprovals = useTokenApproval(amm);
 
   const [errors, setErrors] = useState<SwapFormData['errors']>({});
   const [isValid, setIsValid] = useState<boolean>(false);
   const touched = useRef<string[]>([]);
+
+  const { agent } = useAgent();
+  const balance = useBalance(amm);
+  const minRequiredMargin = useMinRequiredMargin(amm);
+  const { swapInfo } = useAMMContext();
+  const tokenApprovals = useTokenApproval(amm);
 
   const action = s.getFormAction(mode, partialCollateralization, agent);
   const isAddingMargin = mode === SwapFormModes.EDIT_MARGIN && marginAction === MintBurnFormMarginAction.ADD;
