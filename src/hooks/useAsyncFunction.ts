@@ -4,6 +4,7 @@ import useDebounceFunc from './useDebounceFunc';
 export type UseAsyncFunctionResult<ArgsType, ResultType> = {
   result: ResultType | null;
   error: boolean;
+  errorMessage: string | null;
   loading: boolean;
   call: (args?: ArgsType) => void;
 };
@@ -16,6 +17,7 @@ const useAsyncFunction = <ArgsType, ResultType>(
   const [args, setArgs] = useState<ArgsType>();
   const [result, setResult] = useState<ResultType | null>(null);
   const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [called, setCalled] = useState(false);
   const call = useCallback(
@@ -49,6 +51,8 @@ const useAsyncFunction = <ArgsType, ResultType>(
         setResult(data);
       }
     } catch (_error) {
+      console.log("error:", _error);
+      // TODO: set error message
       setResult(null);
       setError(true);
     }
@@ -68,10 +72,11 @@ const useAsyncFunction = <ArgsType, ResultType>(
     () => ({
       result,
       error,
+      errorMessage,
       loading,
       call,
     }),
-    [result, error, loading, call],
+    [result, error, errorMessage, loading, call],
   );
 };
 
