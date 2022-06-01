@@ -2,50 +2,9 @@ import { AugmentedAMM } from "@utilities";
 import { isUndefined } from "lodash";
 import { useEffect, useRef, useState } from "react";
 import { MintBurnFormModes } from "@components/interface";
-import { useAMMContext, useTokenApproval } from "@hooks";
+import { useAMMContext, useBalance, useTokenApproval } from "@hooks";
 import * as s from './services';
-
-export enum MintBurnFormLiquidityAction {
-  ADD='add',
-  BURN='burn'
-};
-
-export enum MintBurnFormMarginAction {
-  ADD='add',
-  REMOVE='remove'
-};
-
-export type MintBurnFormState = {
-  fixedLow?: number;
-  fixedHigh?: number;
-  liquidityAction: MintBurnFormLiquidityAction;
-  margin?: number;
-  marginAction: MintBurnFormMarginAction;
-  notional?: number;
-};
-
-export type MintBurnForm = {
-  approvalsNeeded: boolean;
-  errors: Record<string, string>,
-  isAddingLiquidity: boolean;
-  isAddingMargin: boolean;
-  isRemovingMargin: boolean;
-  isRemovingLiquidity: boolean;
-  isValid: boolean;
-  minRequiredMargin: {
-    loading: boolean;
-    value?: number;
-  };
-  setFixedHigh: (value: MintBurnFormState['fixedHigh']) => void;
-  setFixedLow: (value: MintBurnFormState['fixedLow']) => void;
-  setLiquidityAction: (value: MintBurnFormState['liquidityAction']) => void;
-  setMargin: (value: MintBurnFormState['margin']) => void;
-  setMarginAction: (value: MintBurnFormState['marginAction']) => void;
-  setNotional: (value: MintBurnFormState['notional']) => void;
-  state: MintBurnFormState,
-  tokenApprovals: ReturnType<typeof useTokenApproval>;
-  validate: () => Promise<boolean>;
-};
+import { MintBurnForm, MintBurnFormState, MintBurnFormLiquidityAction, MintBurnFormMarginAction } from "./types";
 
 export const useMintBurnForm = (
   amm: AugmentedAMM, 
@@ -70,6 +29,8 @@ export const useMintBurnForm = (
   const [isValid, setIsValid] = useState<boolean>(false);
   const touched = useRef<string[]>([]);
 
+  const action = s.getFormAction(mode, liquidityAction);
+  const balance = useBalance(amm);
   const { mintMinimumMarginRequirement } = useAMMContext();
   const tokenApprovals = useTokenApproval(amm, true);
   
@@ -78,8 +39,18 @@ export const useMintBurnForm = (
   const isRemovingLiquidity = mode === MintBurnFormModes.EDIT_LIQUIDITY && liquidityAction === MintBurnFormLiquidityAction.BURN;
   const isRemovingMargin = mode === MintBurnFormModes.EDIT_MARGIN && marginAction === MintBurnFormMarginAction.REMOVE;
 
-  const approvalsNeeded = s.approvalsNeeded(tokenApprovals, isRemovingLiquidity, isRemovingMargin);
+  const flags = {
+    isAddingLiquidity,
+    isAddingMargin,
+    isRemovingLiquidity,
+    isRemovingMargin,
+    isValid
+  };
+
+  const approvalsNeeded = s.approvalsNeeded(flags, tokenApprovals);
   const minRequiredMargin = mintMinimumMarginRequirement.result ?? undefined;
+  const submitButtonHint = s.getSubmitButtonHint(amm, errors, flags, tokenApprovals);
+  const submitButtonText = s.getSubmitButtonText(amm, mode, flags, tokenApprovals);
   
   // Load the minimum required margin
   useEffect(() => {
@@ -295,13 +266,11 @@ export const useMintBurnForm = (
   };
 
   return {
+    action,
     approvalsNeeded,
+    balance,
     errors,
-    isAddingLiquidity,
-    isAddingMargin,
-    isRemovingLiquidity,
-    isRemovingMargin,
-    isValid,
+    flags,
     minRequiredMargin: {
       loading: mintMinimumMarginRequirement.loading,
       value: mintMinimumMarginRequirement.result ?? undefined,
@@ -320,6 +289,8 @@ export const useMintBurnForm = (
       marginAction,
       notional
     },
+    submitButtonHint,
+    submitButtonText,
     tokenApprovals,
     validate
   }

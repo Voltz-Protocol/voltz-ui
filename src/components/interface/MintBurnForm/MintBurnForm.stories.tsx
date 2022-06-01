@@ -56,7 +56,7 @@ const NewPositionMintBurnForm: React.FunctionComponent = (args) => {
       balance={balance}
       errors={form.errors}
       formState={form.state}
-      isFormValid={form.isValid}
+      isFormValid={form.flags.isValid}
       minRequiredMargin={minRequiredMargin}
       minRequiredMarginLoading={false}
       mode={mode}
@@ -102,7 +102,7 @@ const EditingMarginMintBurnForm: React.FunctionComponent = (args) => {
       balance={balance}
       errors={form.errors}
       formState={form.state} 
-      isFormValid={form.isValid}
+      isFormValid={form.flags.isValid}
       minRequiredMargin={minRequiredMargin}
       minRequiredMarginLoading={false}
       mode={mode}
@@ -148,7 +148,7 @@ const EditingLiquidityMintBurnForm: React.FunctionComponent = (args) => {
       balance={balance}
       errors={form.errors}
       formState={form.state} 
-      isFormValid={form.isValid}
+      isFormValid={form.flags.isValid}
       minRequiredMargin={minRequiredMargin}
       minRequiredMarginLoading={false}
       mode={mode}

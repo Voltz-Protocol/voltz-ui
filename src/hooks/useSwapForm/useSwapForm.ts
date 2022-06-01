@@ -3,7 +3,7 @@ import { SwapFormActions, SwapFormModes } from "@components/interface";
 import { AugmentedAMM } from "@utilities";
 import { isUndefined } from "lodash";
 import { ReactNode, useEffect, useRef, useState } from "react";
-import { MintBurnFormMarginAction } from "../useMintBurnForm/useMintBurnForm";
+import { MintBurnFormMarginAction } from "../useMintBurnForm/types";
 import { hasEnoughTokens, hasEnoughUnderlyingTokens, lessThan } from "@utilities";
 import { useAgent, useAMMContext, useBalance, useMinRequiredMargin, useTokenApproval } from "@hooks";
 import { InfoPostSwap, Position } from "@voltz-protocol/v1-sdk";
