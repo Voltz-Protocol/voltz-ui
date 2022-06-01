@@ -1,8 +1,8 @@
-import { AugmentedAMM } from "@utilities";
-import { isUndefined } from "lodash";
 import { useEffect, useRef, useState } from "react";
+import { isUndefined } from "lodash";
 import { MintBurnFormModes } from "@components/interface";
 import { useAMMContext, useBalance, useTokenApproval } from "@hooks";
+import { AugmentedAMM, lessThan } from "@utilities";
 import * as s from './services';
 import { MintBurnForm, MintBurnFormState, MintBurnFormLiquidityAction, MintBurnFormMarginAction } from "./types";
 
@@ -33,17 +33,12 @@ export const useMintBurnForm = (
   const balance = useBalance(amm);
   const { mintMinimumMarginRequirement } = useAMMContext();
   const tokenApprovals = useTokenApproval(amm, true);
-  
-  const isAddingLiquidity = mode !== MintBurnFormModes.EDIT_LIQUIDITY || liquidityAction === MintBurnFormLiquidityAction.ADD;
-  const isAddingMargin = mode === MintBurnFormModes.EDIT_MARGIN && marginAction === MintBurnFormMarginAction.ADD;
-  const isRemovingLiquidity = mode === MintBurnFormModes.EDIT_LIQUIDITY && liquidityAction === MintBurnFormLiquidityAction.BURN;
-  const isRemovingMargin = mode === MintBurnFormModes.EDIT_MARGIN && marginAction === MintBurnFormMarginAction.REMOVE;
 
   const flags = {
-    isAddingLiquidity,
-    isAddingMargin,
-    isRemovingLiquidity,
-    isRemovingMargin,
+    isAddingLiquidity: mode !== MintBurnFormModes.EDIT_LIQUIDITY || liquidityAction === MintBurnFormLiquidityAction.ADD,
+    isAddingMargin: mode === MintBurnFormModes.EDIT_MARGIN && marginAction === MintBurnFormMarginAction.ADD,
+    isRemovingLiquidity: mode === MintBurnFormModes.EDIT_LIQUIDITY && liquidityAction === MintBurnFormLiquidityAction.BURN,
+    isRemovingMargin: mode === MintBurnFormModes.EDIT_MARGIN && marginAction === MintBurnFormMarginAction.REMOVE,
     isValid
   };
 
@@ -74,18 +69,26 @@ export const useMintBurnForm = (
     }
   }, [fixedHigh, fixedLow, liquidityAction, margin, marginAction, notional, minRequiredMargin]);
 
+  const addError = (err: Record<string, string>, name: string, message: string) => {
+    if(touched.current.includes(name)) {
+      err[name] = message;
+    }
+  };
+
   const updateFixedHigh = (value: MintBurnFormState['fixedHigh']) => {
     if(!touched.current.includes('fixedHigh')) {
       touched.current.push('fixedHigh');
-    } 
-    setFixedHigh(value);
+    }
+    const newValue = !isUndefined(value) ? amm.getNextUsableFixedRate(value, 0) : undefined;
+    setFixedHigh(newValue);
   }
 
   const updateFixedLow = (value: MintBurnFormState['fixedLow']) => {
     if(!touched.current.includes('fixedLow')) {
       touched.current.push('fixedLow');
     }
-    setFixedLow(value);
+    const newValue = !isUndefined(value) ? amm.getNextUsableFixedRate(value, 0) : undefined;
+    setFixedLow(newValue);
   }
 
   const updateLiquidityAction = (value: MintBurnFormState['liquidityAction']) => {
@@ -132,19 +135,15 @@ export const useMintBurnForm = (
 
     if(isUndefined(fixedLow)) {
       valid = false;
-      if(touched.current.includes('fixedLow')) {
-        err['fixedLow'] = 'Please enter a value';
-      }
+      addError(err, 'fixedLow', 'Please enter a value');
     }
 
     if(isUndefined(fixedHigh)) {
       valid = false;
-      if(touched.current.includes('fixedHigh')) {
-        err['fixedHigh'] = 'Please enter a value';
-      }
+      addError(err, 'fixedHigh', 'Please enter a value');
     }
       
-    if(!isUndefined(fixedLow) && !isUndefined(fixedHigh) && fixedLow >= fixedHigh) {
+    if(lessThan(fixedHigh, fixedLow) === true) {
       valid = false;
       if(touched.current.includes('fixedHigh') || touched.current.includes('fixedLow')) {
         err['fixedLow'] = 'Lower Rate must be smaller than Upper Rate';
@@ -153,16 +152,12 @@ export const useMintBurnForm = (
 
     if(isUndefined(notional) || notional === 0) {
       valid = false;
-      if(touched.current.includes('notional')) {
-        err['notional'] = 'Please enter an amount';
-      }
+      addError(err, 'notional', 'Please enter an amount');
     } 
 
     if(isUndefined(margin) || margin === 0) {
       valid = false;
-      if(touched.current.includes('margin')) {
-        err['margin'] = 'Please enter an amount';
-      }
+      addError(err, 'margin', 'Please enter an amount');
     }    
 
     if(!isUndefined(margin) && margin !== 0) {
@@ -170,9 +165,7 @@ export const useMintBurnForm = (
         const hasEnoughFunds = await amm.hasEnoughUnderlyingTokens(margin);
         if(!hasEnoughFunds) {
           valid = false;
-          if(touched.current.includes('margin')) {
-            err['margin'] = 'Insufficient funds';
-          }
+          addError(err, 'margin', 'Insufficient funds');
         }
       } catch(e) {
         // If error, just skip this check
@@ -180,11 +173,9 @@ export const useMintBurnForm = (
     }
 
     // Check that the input margin is >= minimum required margin
-    if(!isUndefined(minRequiredMargin) && !isUndefined(margin) && margin !== 0 && margin < minRequiredMargin) {
+    if(margin !== 0 && lessThan(margin, minRequiredMargin) === true) {
       valid = false;
-      if(touched.current.includes('margin')) {
-        err['margin'] = 'Not enough margin';
-      }
+      addError(err, 'margin', 'Not enough margin');
     }
     
     setErrors(err);
@@ -198,9 +189,7 @@ export const useMintBurnForm = (
 
     if(isUndefined(margin) || margin === 0) {
       valid = false;
-      if(touched.current.includes('margin')) {
-        err['margin'] = 'Please enter an amount';
-      }
+      addError(err, 'margin', 'Please enter an amount');
     }
 
     if(marginAction === MintBurnFormMarginAction.ADD) {
@@ -210,9 +199,7 @@ export const useMintBurnForm = (
           const hasEnoughFunds = await amm.hasEnoughUnderlyingTokens(margin);
           if(!hasEnoughFunds) {
             valid = false;
-            if(touched.current.includes('margin')) {
-              err['margin'] = 'Insufficient funds';
-            }
+            addError(err, 'margin', 'Insufficient funds');
           }
         } catch(e) {
           // If error, just skip this check
@@ -231,16 +218,12 @@ export const useMintBurnForm = (
 
     if(isUndefined(notional) || notional === 0) {
       valid = false;
-      if(touched.current.includes('notional')) {
-        err['notional'] = 'Please enter an amount';
-      }
+      addError(err, 'notional', 'Please enter an amount');
     } 
 
     if(isUndefined(margin)) {
       valid = false;
-      if(touched.current.includes('margin')) {
-        err['margin'] = 'Please enter an amount';
-      }
+      addError(err, 'margin', 'Please enter an amount');
     }
 
     if(liquidityAction === MintBurnFormLiquidityAction.ADD) {
@@ -250,9 +233,7 @@ export const useMintBurnForm = (
           const hasEnoughFunds = await amm.hasEnoughUnderlyingTokens(margin);
           if(!hasEnoughFunds) {
             valid = false;
-            if(touched.current.includes('margin')) {
-              err['margin'] = 'Insufficient funds';
-            }
+            addError(err, 'margin', 'Insufficient funds');
           }
         } catch(e) {
           // If error, just skip this check

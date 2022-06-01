@@ -7,7 +7,6 @@ import { routes } from '@routes';
 import { actions, selectors } from '@store';
 import { MintBurnFormLiquidityAction, MintBurnFormMarginAction, useAgent, useDispatch, useMintBurnForm, useSelector } from '@hooks';
 import { MintBurnForm, MintBurnFormActions, MintBurnFormModes, PendingTransaction } from '@components/interface';
-import { updateFixedRate } from './utilities';
 import { BigNumber } from 'ethers';
 
 export type ConnectedMintBurnFormProps = {
@@ -69,16 +68,6 @@ const ConnectedMintBurnForm: React.FunctionComponent<ConnectedMintBurnFormProps>
     dispatch(action);
   }
 
-  const handleSetFixedHigh = useCallback(
-    updateFixedRate({ amm, fixedRate: form.state.fixedHigh, setFixedRate: form.setFixedHigh }),
-    [amm, form.state.fixedHigh, form.setFixedHigh],
-  );
-
-  const handleSetFixedLow = useCallback(
-    updateFixedRate({ amm, fixedRate: form.state.fixedLow, setFixedRate: form.setFixedLow }),
-    [amm, form.state.fixedLow, form.setFixedLow],
-  );
-
   const handleSubmit = () => {
     if(!form.flags.isValid) return;
 
@@ -124,8 +113,8 @@ const ConnectedMintBurnForm: React.FunctionComponent<ConnectedMintBurnFormProps>
       minRequiredMargin={form.minRequiredMargin.value}
       minRequiredMarginLoading={form.minRequiredMargin.loading}
       onCancel={onReset}
-      onChangeFixedLow={handleSetFixedLow}
-      onChangeFixedHigh={handleSetFixedHigh}
+      onChangeFixedLow={form.setFixedLow}
+      onChangeFixedHigh={form.setFixedHigh}
       onChangeLiquidityAction={form.setLiquidityAction}
       onChangeMargin={form.setMargin}
       onChangeMarginAction={form.setMarginAction} 

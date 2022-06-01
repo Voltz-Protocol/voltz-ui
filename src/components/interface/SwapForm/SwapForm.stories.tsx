@@ -62,7 +62,7 @@ const NewPositionSwapForm: React.FunctionComponent = (args) => {
       {...args} 
       errors={form.errors}
       formState={form.state} 
-      isFormValid={form.isValid}
+      isFormValid={form.flags.isValid}
       formAction={SwapFormActions.SWAP}
       mode={mode}
       onCancel={() => alert('cancel')}
@@ -102,7 +102,7 @@ const EditingMarginSwapForm: React.FunctionComponent = (args) => {
       {...args} 
       errors={form.errors}
       formState={form.state}
-      isFormValid={form.isValid}
+      isFormValid={form.flags.isValid}
       mode={mode}
       formAction={SwapFormActions.SWAP}
       onCancel={() => alert('cancel')}

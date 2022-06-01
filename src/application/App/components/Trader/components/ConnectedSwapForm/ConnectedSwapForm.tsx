@@ -23,7 +23,7 @@ const ConnectedSwapForm: React.FunctionComponent<ConnectedSwapFormProps> = ({
   onReset,
   position,
 }) => {
-  const { agent, onChangeAgent } = useAgent();
+  const { agent } = useAgent();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -37,7 +37,7 @@ const ConnectedSwapForm: React.FunctionComponent<ConnectedSwapFormProps> = ({
     const transaction = { 
       agent,
       ammId: amm.id,
-      margin: Math.abs(form.state.margin as number) * (form.isRemovingMargin ? -1 : 1),
+      margin: Math.abs(form.state.margin as number) * (form.flags.isRemovingMargin ? -1 : 1),
       notional: form.state.notional as number,
       partialCollateralization: agent === Agents.FIXED_TRADER ? form.state.partialCollateralization : true
     };
@@ -65,9 +65,9 @@ const ConnectedSwapForm: React.FunctionComponent<ConnectedSwapFormProps> = ({
   }
 
   const handleSubmit = () => {
-    if(!form.isValid) return;
+    if(!form.flags.isValid) return;
 
-    if(!form.isRemovingMargin) {
+    if(!form.flags.isRemovingMargin) {
       if (form.action === SwapFormActions.FCM_SWAP || form.action === SwapFormActions.FCM_UNWIND) {
         if(!form.tokenApprovals.FCMApproved) {
           void form.tokenApprovals.approveFCM();
@@ -108,7 +108,7 @@ const ConnectedSwapForm: React.FunctionComponent<ConnectedSwapFormProps> = ({
             isEditingMargin={true}
             transactionId={transactionId}
             onComplete={handleComplete}
-            margin={Math.abs(form.state.margin as number) * (form.isRemovingMargin ? -1 : 1)}
+            margin={Math.abs(form.state.margin as number) * (form.flags.isRemovingMargin ? -1 : 1)}
             onBack={handleGoBack}
           />
         );
@@ -122,7 +122,7 @@ const ConnectedSwapForm: React.FunctionComponent<ConnectedSwapFormProps> = ({
             transactionId={transactionId}
             onComplete={handleComplete}
             notional={form.swapInfo.data?.availableNotional}
-            margin={Math.abs(form.state.margin as number) * (form.isRemovingMargin ? -1 : 1)}
+            margin={Math.abs(form.state.margin as number) * (form.flags.isRemovingMargin ? -1 : 1)}
             onBack={handleGoBack}
           />
         );
@@ -166,7 +166,7 @@ const ConnectedSwapForm: React.FunctionComponent<ConnectedSwapFormProps> = ({
       errors={form.errors}
       formAction={form.action} 
       formState={form.state}
-      isFormValid={form.isValid}
+      isFormValid={form.flags.isValid}
       minRequiredMargin={form.minRequiredMargin}
       mode={mode}
       onCancel={onReset}

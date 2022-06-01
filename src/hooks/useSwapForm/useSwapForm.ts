@@ -1,4 +1,4 @@
-import { Agents, GetInfoType } from "@components/contexts";
+import { GetInfoType } from "@components/contexts";
 import { SwapFormActions, SwapFormModes } from "@components/interface";
 import { AugmentedAMM } from "@utilities";
 import { isUndefined } from "lodash";
@@ -9,7 +9,6 @@ import { useAgent, useAMMContext, useBalance, useMinRequiredMargin, useTokenAppr
 import { InfoPostSwap, Position } from "@voltz-protocol/v1-sdk";
 import * as s from "./services";
 import { BigNumber } from "ethers";
-import JSBI from "jsbi";
 
 export type SwapFormState = {
   margin?: number;
@@ -18,14 +17,18 @@ export type SwapFormState = {
   partialCollateralization: boolean;
 };
 
+export type SwapFormFlags = {
+  isAddingMargin: boolean,
+  isRemovingMargin: boolean;
+  isValid: boolean;
+};
+
 export type SwapFormData = {
   action: SwapFormActions;
   approvalsNeeded: boolean;
   balance?: BigNumber;
   errors: Record<string, string>;
-  isAddingMargin: boolean,
-  isRemovingMargin: boolean;
-  isValid: boolean;
+  flags: SwapFormFlags;
   minRequiredMargin?: number;
   setMargin: (value: SwapFormState['margin']) => void;
   setMarginAction: (value: SwapFormState['marginAction']) => void;
@@ -71,12 +74,16 @@ export const useSwapForm = (
   const tokenApprovals = useTokenApproval(amm);
 
   const action = s.getFormAction(mode, partialCollateralization, agent);
-  const isAddingMargin = mode === SwapFormModes.EDIT_MARGIN && marginAction === MintBurnFormMarginAction.ADD;
-  const isRemovingMargin = mode === SwapFormModes.EDIT_MARGIN && marginAction === MintBurnFormMarginAction.REMOVE;
 
-  const approvalsNeeded = s.approvalsNeeded(action, tokenApprovals, isRemovingMargin)
-  const submitButtonHint = s.getSubmitButtonHint(amm, action, errors, isValid, tokenApprovals, isRemovingMargin);
-  const submitButtonText = s.getSubmitButtonText(mode, tokenApprovals, amm, action, agent, isRemovingMargin);
+  const flags = {
+    isAddingMargin: mode === SwapFormModes.EDIT_MARGIN && marginAction === MintBurnFormMarginAction.ADD,
+    isRemovingMargin: mode === SwapFormModes.EDIT_MARGIN && marginAction === MintBurnFormMarginAction.REMOVE,
+    isValid
+  };
+
+  const approvalsNeeded = s.approvalsNeeded(action, tokenApprovals, flags.isRemovingMargin)
+  const submitButtonHint = s.getSubmitButtonHint(amm, action, errors, isValid, tokenApprovals, flags.isRemovingMargin);
+  const submitButtonText = s.getSubmitButtonText(mode, tokenApprovals, amm, action, agent, flags.isRemovingMargin);
 
   // Load the swap summary info
   useEffect(() => {
@@ -246,9 +253,7 @@ export const useSwapForm = (
     approvalsNeeded,
     balance,
     errors,
-    isAddingMargin,
-    isRemovingMargin,
-    isValid,
+    flags,
     minRequiredMargin,
     setMargin: updateMargin,
     setMarginAction: updateMarginAction,
