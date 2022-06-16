@@ -3,26 +3,29 @@ import isUndefined from 'lodash/isUndefined';
 
 import IconLabel from '../IconLabel/IconLabel';
 import MaskedIntegerField from '../MaskedIntegerField/MaskedIntegerField';
+import { getHealthTextColor } from '@utilities';
 
 export type MarginAmountProps = {
-  protocol?: string;
   defaultMargin?: number;
-  maxMargin?: number;
-  margin?: number;
+  error?: string;
+  healthFactor?: number;
   isAdditional?: boolean;
   isEditing?: boolean;
+  maxMargin?: number;
+  margin?: number;
   onChangeMargin: (value: number) => void;
-  error?: string;
+  protocol?: string;
 };
 
 const MarginAmount: React.FunctionComponent<MarginAmountProps> = ({
-  protocol,
   defaultMargin,
-  margin,
+  error,
+  healthFactor,
   isAdditional,
   isEditing,
+  margin,
   onChangeMargin,
-  error
+  protocol,
 }) => {
   const value = isUndefined(margin) ? defaultMargin : margin;
   const handleChange = (newValue: string) => {
@@ -59,6 +62,11 @@ const MarginAmount: React.FunctionComponent<MarginAmountProps> = ({
             "Your chosen margin is defined based on your leverage and notional amount traded. You are required to deposit margin in order to execute a trade." : 
             "Margin in underlying tokens to withdraw from the margin account." }
         />
+      }
+      label2={
+        !isUndefined(healthFactor) 
+          ? <>Health factor: <span style={{color: getHealthTextColor(healthFactor)}}>{healthFactor}</span></>
+          : undefined
       }
       value={value}
       onChange={handleChange}

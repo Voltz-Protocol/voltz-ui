@@ -1,10 +1,11 @@
-export * as data from './data';
 export { default as AugmentedAMM } from './augmentedAmm';
 export { default as calculateNotionalAmount } from './calculateNotionalAmount';
+export * as data from './data';
+export * from './date';
 export { default as elideAddress } from './elideAddress';
 export { default as getErrorMessage } from './getErrorMessage';
 export * from './overrideTypes';
 export * from './number';
 export * from './page';
-export * from './date';
+export * from './theme';
 export * from './validation';

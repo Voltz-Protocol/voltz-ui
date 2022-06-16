@@ -2,7 +2,7 @@ import React from 'react';
 import { SystemStyleObject, Theme } from '@mui/system';
 import { Box } from '@mui/material';
 import { colors } from '@theme';
-import { formatCurrency, formatNumber } from '@utilities';
+import { formatCurrency, formatNumber, getHealthTextColor } from '@utilities';
 import PositionBadge from '../PositionBadge';
 import { Typography } from '@components/atomic';
 import { isUndefined } from 'lodash';
@@ -57,10 +57,6 @@ const PositionTableHead: React.FunctionComponent<PositionTableHeadProps> = ({
     }
   };
 
-  const getHealthTextColor = () => {
-    return (healthFactor === 1) ? '#F61067' : (healthFactor === 2 ? '#F1D302' : '#00d395');
-  };
-
   const getTextColor = (positive: boolean) => {
     return positive ? colors.vzCustomGreen1 : colors.vzCustomRed1;
   }
@@ -93,14 +89,14 @@ const PositionTableHead: React.FunctionComponent<PositionTableHeadProps> = ({
       <Box sx={{ display: 'flex' }}>
         {beforeMaturity && !isUndefined(currentFixedRate) && !isUndefined(healthFactor) && (
           <Box sx={{ padding: (theme) => `${theme.spacing(1)} ${theme.spacing(2)}`, marginLeft: (theme) => theme.spacing(2) }}>
-            <Typography variant='body2' sx={{ ...labelStyles, color: getHealthTextColor() }}>
+            <Typography variant='body2' sx={{ ...labelStyles, color: getHealthTextColor(healthFactor) }}>
               <CircleIcon 
                 sx={{ 
                   width: 4, 
                   height: 14, 
                   borderRadius: '16px',
                   marginRight: (theme) => theme.spacing(2), 
-                  color: getHealthTextColor(),
+                  color: getHealthTextColor(healthFactor),
                 }} 
               />
               Current fixed rate: {formatNumber(currentFixedRate)}%
@@ -110,14 +106,14 @@ const PositionTableHead: React.FunctionComponent<PositionTableHeadProps> = ({
 
         {beforeMaturity && isUndefined(currentFixedRate) && !isUndefined(healthFactor) && (
           <Box sx={{ padding: (theme) => `${theme.spacing(1)} ${theme.spacing(2)}`, marginLeft: (theme) => theme.spacing(2) }}>
-            <Typography variant='body2' sx={{ ...labelStyles, color: getHealthTextColor() }}>
+            <Typography variant='body2' sx={{ ...labelStyles, color: getHealthTextColor(healthFactor) }}>
               <CircleIcon 
                 sx={{ 
                   width: 4, 
                   height: 14, 
                   borderRadius: '16px',
                   marginRight: (theme) => theme.spacing(2), 
-                  color: getHealthTextColor(),
+                  color: getHealthTextColor(healthFactor),
                 }} 
               />
               {(healthFactor === 1) ? 'DANGER' : (healthFactor === 2 ? 'WARNING' : 'HEALTHY')}
