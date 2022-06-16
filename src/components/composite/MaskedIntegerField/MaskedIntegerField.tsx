@@ -13,7 +13,8 @@ import { inputStyles } from '@theme';
 export type MaskedIntegerFieldProps = OverrideTypes<CurrencyInputProps, {
   error?: InputBaseProps['error'],
   errorText?: string;
-  label?: ReactNode,
+  label?: ReactNode;
+  label2?: ReactNode;
   onChange?: (value: string) => void;
   inputSize?: 'small' | 'medium' | 'large';
 }>;
@@ -30,6 +31,7 @@ const MaskedIntegerField: React.FunctionComponent<MaskedIntegerFieldProps> = ({
   error,
   errorText,
   label,
+  label2,
   onChange,
   inputSize = 'large',
   suffix,
@@ -43,12 +45,22 @@ const MaskedIntegerField: React.FunctionComponent<MaskedIntegerFieldProps> = ({
 
   return (
     <FormControl variant="outlined" sx={{width: '100%'}}>
-      {!isEmpty(label) && (
-        <InputLabel shrink htmlFor={inputId} error={error} sx={{ 
-          color: (theme) => error ? `${theme.palette.error.base} !important` : undefined 
-        }}>
-          {label}
-        </InputLabel>
+      {(!isEmpty(label) || !isEmpty(label2)) && (
+        <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+          {!isEmpty(label) 
+            ? (
+              <InputLabel shrink htmlFor={inputId} error={error} sx={{ 
+                color: (theme) => error ? `${theme.palette.error.base} !important` : undefined 
+              }}>
+                {label}
+              </InputLabel>
+            ) 
+            : (
+              <Box/>
+            )
+          }
+          {!isEmpty(label2) ? <InputLabel>{label2}</InputLabel> : <Box/>}
+        </Box>
       )}
 
       <Box sx={{
