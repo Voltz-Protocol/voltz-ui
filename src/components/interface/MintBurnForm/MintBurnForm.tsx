@@ -1,6 +1,8 @@
 import React from 'react';
 import { DateTime } from 'luxon';
 import Box from '@mui/material/Box';
+import { SystemStyleObject } from '@mui/system';
+import { Theme } from '@mui/material';
 import { Panel } from '@components/atomic';
 import {
   IconLabel,
@@ -74,145 +76,162 @@ const MintBurnForm: React.FunctionComponent<MintBurnFormProps> = ({
   tradeInfoErrorMessage,
   underlyingTokenName = ''
 }) => {
+  const bottomSpacing: SystemStyleObject<Theme> = {
+    marginBottom: (theme) => theme.spacing(6)
+  }
   const isAddingLiquidity = mode !== MintBurnFormModes.EDIT_LIQUIDITY || formState.liquidityAction === MintBurnFormLiquidityAction.ADD;
 
   return (
-    <Panel
-      variant="darker"
-      sx={{
-        marginTop: 12,
-        width: (theme) => theme.spacing(97),
-        boxShadow: '0px 0px 60px rgba(255, 89, 156, 0.2)',
-      }}
-    >
-      <ProtocolInformation protocol={protocol} />
-      <Box
+    <>
+      <Panel
+        variant="darker"
         sx={{
-          marginBottom: (theme) => theme.spacing(6),
+          marginTop: 12,
+          width: (theme) => theme.spacing(97),
+          boxShadow: '0px 0px 60px rgba(255, 89, 156, 0.2)',
         }}
       >
-        <MaturityInformation
-          label={
-            <IconLabel
-              label="maturity"
-              icon="information-circle"
-              info="The proportion between the time elapsed since the initiation of the pool and the entire duration."
-              removeIcon
+        <ProtocolInformation protocol={protocol} />
+        <Box
+          sx={{
+            marginBottom: (theme) => theme.spacing(6),
+          }}
+        >
+          <MaturityInformation
+            label={
+              <IconLabel
+                label="maturity"
+                icon="information-circle"
+                info="The proportion between the time elapsed since the initiation of the pool and the entire duration."
+                removeIcon
+              />
+            }
+            startDate={startDate}
+            endDate={endDate}
+          />
+        </Box>
+        
+        {mode === MintBurnFormModes.EDIT_LIQUIDITY && (
+          <Box
+            sx={{
+              marginBottom: (theme) => theme.spacing(6),
+              display: 'flex',
+            }}
+          >
+            <LiquidityControls 
+              value={formState.liquidityAction}
+              onChange={onChangeLiquidityAction}
+            />          
+          </Box>
+        )}
+
+        {mode === MintBurnFormModes.EDIT_MARGIN && (
+          <Box
+            sx={{
+              marginBottom: (theme) => theme.spacing(6),
+              display: 'flex',
+            }}
+          >
+            <MarginControls 
+              values={MintBurnFormMarginAction}
+              value={formState.marginAction}
+              onChange={onChangeMarginAction} 
             />
-          }
-          startDate={startDate}
-          endDate={endDate}
-        />
-      </Box>
-      
-      {mode === MintBurnFormModes.EDIT_LIQUIDITY && (
+          </Box>
+        )}  
+
         <Box
           sx={{
             marginBottom: (theme) => theme.spacing(6),
             display: 'flex',
           }}
         >
-          <LiquidityControls 
-            value={formState.liquidityAction}
-            onChange={onChangeLiquidityAction}
-          />          
-        </Box>
-      )}
-
-      {mode === MintBurnFormModes.EDIT_MARGIN && (
-        <Box
-          sx={{
-            marginBottom: (theme) => theme.spacing(6),
-            display: 'flex',
-          }}
-        >
-          <MarginControls 
-            values={MintBurnFormMarginAction}
-            value={formState.marginAction}
-            onChange={onChangeMarginAction} 
+          <RateOptions
+            fixedLow={formState.fixedLow}
+            fixedLowDisabled={mode === MintBurnFormModes.EDIT_LIQUIDITY || mode === MintBurnFormModes.EDIT_MARGIN}
+            fixedLowError={errors['fixedLow']}
+            fixedHigh={formState.fixedHigh}
+            fixedHighDisabled={mode === MintBurnFormModes.EDIT_LIQUIDITY || mode === MintBurnFormModes.EDIT_MARGIN}
+            fixedHighError={errors['fixedHigh']}
+            onChangeFixedLow={onChangeFixedLow}
+            onChangeFixedHigh={onChangeFixedHigh}
           />
         </Box>
-      )}  
+        
+        {mode !== MintBurnFormModes.EDIT_MARGIN && (
+          <Box
+            sx={{
+              marginBottom: (theme) => theme.spacing(6),
+            }}
+          >
+            <NotionalAmount
+              label={ isAddingLiquidity ? "Notional liquidity Provided" : "Notional liquidity removed"} 
+              info={`Choose the notional amount of liquidity you wish to ${isAddingLiquidity ? 'provide' : 'remove'}.`}
+              protocol={protocol}
+              notional={formState.notional}
+              onChangeNotional={onChangeNotional}
+              error={errors['notional']}
+            />
+          </Box>
+        )}
 
-      <Box
-        sx={{
-          marginBottom: (theme) => theme.spacing(6),
-          display: 'flex',
-        }}
-      >
-        <RateOptions
-          fixedLow={formState.fixedLow}
-          fixedLowDisabled={mode === MintBurnFormModes.EDIT_LIQUIDITY || mode === MintBurnFormModes.EDIT_MARGIN}
-          fixedLowError={errors['fixedLow']}
-          fixedHigh={formState.fixedHigh}
-          fixedHighDisabled={mode === MintBurnFormModes.EDIT_LIQUIDITY || mode === MintBurnFormModes.EDIT_MARGIN}
-          fixedHighError={errors['fixedHigh']}
-          onChangeFixedLow={onChangeFixedLow}
-          onChangeFixedHigh={onChangeFixedHigh}
+        {isAddingLiquidity && (
+          <Box
+            sx={{
+              marginBottom: (theme) => theme.spacing(6),
+            }}
+          >
+            <MarginAmount
+              balance={balance}
+              protocol={protocol}
+              maxMargin={maxMargin}
+              margin={formState.margin}
+              isAdditional={formState.marginAction === MintBurnFormMarginAction.ADD}
+              isEditing={mode === MintBurnFormModes.EDIT_MARGIN}
+              onChangeMargin={onChangeMargin}
+              error={errors['margin']}
+            />
+          </Box>
+        )}
+
+        <SubmitControls 
+          approvalsNeeded={approvalsNeeded}
+          hintState={hintState}
+          isFormValid={isFormValid}
+          isTradeVerified={isTradeVierified}
+          mode={mode}
+          onCancel={onCancel} 
+          onSubmit={onSubmit}
+          submitButtonState={submitButtonState}
+          tokenApprovals={tokenApprovals}
+          tradeInfoErrorMessage={tradeInfoErrorMessage}
+          underlyingTokenName={underlyingTokenName}
         />
+      </Panel>
+
+      <Box>
+        <Panel
+          variant="darker"
+          sx={{
+            marginTop: 12,
+            marginLeft: (theme) => theme.spacing(2),
+            width: (theme) => theme.spacing(97),
+            boxShadow: '0px 0px 60px rgba(255, 89, 156, 0.2)',
+          }}
+        >
+          {(mode !== MintBurnFormModes.EDIT_MARGIN && isAddingLiquidity && (!isUndefined(minRequiredMargin) || minRequiredMarginLoading)) && (
+            <Box sx={{ /*marginBottom: (theme) => theme.spacing(6)*/ }}>
+              <MintInfo 
+                balance={balance}
+                minRequiredMargin={minRequiredMargin}
+                loading={minRequiredMarginLoading} 
+                underlyingTokenName={underlyingTokenName} 
+              />
+            </Box>
+          )}
+        </Panel>
       </Box>
-      
-      {mode !== MintBurnFormModes.EDIT_MARGIN && (
-        <Box
-          sx={{
-            marginBottom: (theme) => theme.spacing(6),
-          }}
-        >
-          <NotionalAmount
-            label={ isAddingLiquidity ? "Notional liquidity Provided" : "Notional liquidity removed"} 
-            info={`Choose the notional amount of liquidity you wish to ${isAddingLiquidity ? 'provide' : 'remove'}.`}
-            protocol={protocol}
-            notional={formState.notional}
-            onChangeNotional={onChangeNotional}
-            error={errors['notional']}
-          />
-        </Box>
-      )}
-
-      {isAddingLiquidity && (
-        <Box
-          sx={{
-            marginBottom: (theme) => theme.spacing(6),
-          }}
-        >
-          <MarginAmount
-            balance={balance}
-            protocol={protocol}
-            maxMargin={maxMargin}
-            margin={formState.margin}
-            isAdditional={formState.marginAction === MintBurnFormMarginAction.ADD}
-            isEditing={mode === MintBurnFormModes.EDIT_MARGIN}
-            onChangeMargin={onChangeMargin}
-            error={errors['margin']}
-          />
-        </Box>
-      )}
-
-      {(mode !== MintBurnFormModes.EDIT_MARGIN && isAddingLiquidity && (!isUndefined(minRequiredMargin) || minRequiredMarginLoading)) && (
-        <Box sx={{ marginBottom: (theme) => theme.spacing(6) }}>
-          <MintInfo 
-            balance={balance}
-            minRequiredMargin={minRequiredMargin}
-            loading={minRequiredMarginLoading} 
-            underlyingTokenName={underlyingTokenName} 
-          />
-        </Box>
-      )}
-
-      <SubmitControls 
-        approvalsNeeded={approvalsNeeded}
-        hintState={hintState}
-        isFormValid={isFormValid}
-        isTradeVerified={isTradeVierified}
-        mode={mode}
-        onCancel={onCancel} 
-        onSubmit={onSubmit}
-        submitButtonState={submitButtonState}
-        tokenApprovals={tokenApprovals}
-        tradeInfoErrorMessage={tradeInfoErrorMessage}
-        underlyingTokenName={underlyingTokenName}
-      />
-    </Panel>
+    </>
   );
 };
 
