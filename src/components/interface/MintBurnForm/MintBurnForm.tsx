@@ -92,11 +92,7 @@ const MintBurnForm: React.FunctionComponent<MintBurnFormProps> = ({
         }}
       >
         <ProtocolInformation protocol={protocol} />
-        <Box
-          sx={{
-            marginBottom: (theme) => theme.spacing(6),
-          }}
-        >
+        <Box sx={bottomSpacing}>
           <MaturityInformation
             label={
               <IconLabel
@@ -112,26 +108,16 @@ const MintBurnForm: React.FunctionComponent<MintBurnFormProps> = ({
         </Box>
         
         {mode === MintBurnFormModes.EDIT_LIQUIDITY && (
-          <Box
-            sx={{
-              marginBottom: (theme) => theme.spacing(6),
-              display: 'flex',
-            }}
-          >
+          <Box sx={{ ...bottomSpacing, display: 'flex' }}>
             <LiquidityControls 
               value={formState.liquidityAction}
               onChange={onChangeLiquidityAction}
-            />          
+            />
           </Box>
         )}
 
         {mode === MintBurnFormModes.EDIT_MARGIN && (
-          <Box
-            sx={{
-              marginBottom: (theme) => theme.spacing(6),
-              display: 'flex',
-            }}
-          >
+          <Box sx={{ ...bottomSpacing, display: 'flex' }}>
             <MarginControls 
               values={MintBurnFormMarginAction}
               value={formState.marginAction}
@@ -140,12 +126,7 @@ const MintBurnForm: React.FunctionComponent<MintBurnFormProps> = ({
           </Box>
         )}  
 
-        <Box
-          sx={{
-            marginBottom: (theme) => theme.spacing(6),
-            display: 'flex',
-          }}
-        >
+        <Box sx={{ ...bottomSpacing, display: 'flex' }}>
           <RateOptions
             fixedLow={formState.fixedLow}
             fixedLowDisabled={mode === MintBurnFormModes.EDIT_LIQUIDITY || mode === MintBurnFormModes.EDIT_MARGIN}
@@ -159,11 +140,7 @@ const MintBurnForm: React.FunctionComponent<MintBurnFormProps> = ({
         </Box>
         
         {mode !== MintBurnFormModes.EDIT_MARGIN && (
-          <Box
-            sx={{
-              marginBottom: (theme) => theme.spacing(6),
-            }}
-          >
+          <Box sx={bottomSpacing}>
             <NotionalAmount
               label={ isAddingLiquidity ? "Notional liquidity Provided" : "Notional liquidity removed"} 
               info={`Choose the notional amount of liquidity you wish to ${isAddingLiquidity ? 'provide' : 'remove'}.`}
@@ -176,11 +153,7 @@ const MintBurnForm: React.FunctionComponent<MintBurnFormProps> = ({
         )}
 
         {isAddingLiquidity && (
-          <Box
-            sx={{
-              marginBottom: (theme) => theme.spacing(6),
-            }}
-          >
+          <Box sx={bottomSpacing}>
             <MarginAmount
               balance={balance}
               protocol={protocol}
@@ -220,7 +193,7 @@ const MintBurnForm: React.FunctionComponent<MintBurnFormProps> = ({
           }}
         >
           {(mode !== MintBurnFormModes.EDIT_MARGIN && isAddingLiquidity && (!isUndefined(minRequiredMargin) || minRequiredMarginLoading)) && (
-            <Box sx={{ /*marginBottom: (theme) => theme.spacing(6)*/ }}>
+            <Box>
               <MintInfo 
                 balance={balance}
                 minRequiredMargin={minRequiredMargin}

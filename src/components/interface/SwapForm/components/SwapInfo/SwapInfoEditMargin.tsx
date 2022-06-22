@@ -23,7 +23,8 @@ const SwapInfoEditMargin: React.FunctionComponent<SwapInfoEditMarginProps> = ({ 
   const rows = !isUndefined(minRequiredMargin) ? [
     {
       label: 'MINIMUM REQUIRED MARGIN:', 
-      value: `${formatCurrency(minRequiredMargin, true)} ${underlyingTokenName}`
+      value: `${formatCurrency(minRequiredMargin, true)} ${underlyingTokenName}`,
+      highlight: true
     },
     {
       label: 'POSITION MARGIN:', 
