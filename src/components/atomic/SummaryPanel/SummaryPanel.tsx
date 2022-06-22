@@ -6,7 +6,7 @@ import colors from '../../../theme/colors';
 interface SummaryPanelProps {
   label?: ReactNode;
   loading?: boolean;
-  rows?: {label: string; value: string, highlight?: boolean}[];
+  rows?: {label: string; value: ReactNode, highlight?: boolean}[];
 }
 
 const SummaryPanel = ({ label, loading, rows }: SummaryPanelProps) => {

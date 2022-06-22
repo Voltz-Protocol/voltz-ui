@@ -3,7 +3,7 @@ import SummaryPanel from '../../../../atomic/SummaryPanel/SummaryPanel';
 import { IconLabel } from '@components/composite';
 import { formatCurrency, formatNumber } from '@utilities';
 import { InfoPostSwap } from '@voltz-protocol/v1-sdk';
-import { SwapFormActions } from '../../types';
+import { SwapFormActions } from '../../../SwapForm/types';
 
 export type SwapInfoProps = {
   data: InfoPostSwap | void | null;
