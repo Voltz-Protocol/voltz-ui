@@ -1,25 +1,26 @@
 import React, { useEffect } from 'react';
 import Box from '@mui/material/Box';
-import { SystemStyleObject } from '@mui/system';
-import { Theme } from '@mui/material';
-import { Panel } from '@components/atomic';
+// import { SystemStyleObject } from '@mui/system';
+// import { Theme } from '@mui/material';
 import { Position } from '@voltz-protocol/v1-sdk';
-import SummaryPanel from 'src/components/atomic/SummaryPanel/SummaryPanel';
+import { Button, getPositionBadgeVariant, PositionBadge, SummaryPanel } from '@components/atomic';
 import { formatCurrency } from '@utilities';
 import { BigNumber } from 'ethers';
 import { useAMMContext } from '@hooks';
 import { colors }  from '@theme';
 
 export type SwapFormCurrentPositionProps = {
+  onPortfolio: () => void;
   position: Position;
 };
 
 const SwapFormCurrentPosition: React.FunctionComponent<SwapFormCurrentPositionProps> = ({
+  onPortfolio,
   position
 }) => {
-  const bottomSpacing: SystemStyleObject<Theme> = {
-    marginBottom: (theme) => theme.spacing(6)
-  }
+  // const bottomSpacing: SystemStyleObject<Theme> = {
+  //   marginBottom: (theme) => theme.spacing(6)
+  // }
   const { positionInfo } = useAMMContext();
 
   const notional = Math.abs(position.effectiveVariableTokenBalance);
@@ -59,7 +60,6 @@ const SwapFormCurrentPosition: React.FunctionComponent<SwapFormCurrentPositionPr
         </span>
       );
     }
-    
   }
 
   useEffect(() => {
@@ -67,35 +67,44 @@ const SwapFormCurrentPosition: React.FunctionComponent<SwapFormCurrentPositionPr
   }, [position]);
 
   return (
-    <Box>
-      <Panel
-        variant="dark"
-        sx={{
-          marginTop: 12,
-          marginRight: (theme) => theme.spacing(2),
-          width: (theme) => theme.spacing(97),
+    <Box sx={{
+      marginRight: (theme) => theme.spacing(2),
+      padding: (theme) => theme.spacing(6),
+      width: (theme) => theme.spacing(97),
+      boxSizing: 'border-box',
+    }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: (theme) => theme.spacing(6) }}>
+        <PositionBadge variant={getPositionBadgeVariant(position.positionType)} sx={{ display: 'inline-block', marginLeft: 0 }} />
+      </Box>
+      <SummaryPanel label="Position information" rows={[
+        {
+          label: 'NOTIONAL',
+          value: `${formatCurrency(notional)} ${underlyingTokenName}`
+        },
+        {
+          label: 'LEVERAGE',
+          value: `${formatCurrency(leverage)}x`
+        },
+        {
+          label: 'HEALTH FACTOR',
+          value: positionInfo.loading ? 'loading...' : getHealthFactor(),
+        },
+        {
+          label: 'CURRENT MARGIN',
+          value: `${formatCurrency(margin)} ${underlyingTokenName}`,
+          highlight: true
+        },
+      ]} />
+      <Button
+        sx={{ 
+          marginTop: (theme) => theme.spacing(6), 
+          flexGrow: 0 
         }}
+        variant="dark"
+        onClick={onPortfolio}
       >
-        <SummaryPanel label="Position information" rows={[
-          {
-            label: 'NOTIONAL',
-            value: `${formatCurrency(notional)} ${underlyingTokenName}`
-          },
-          {
-            label: 'LEVERAGE',
-            value: `${formatCurrency(leverage)}x`
-          },
-          {
-            label: 'HEALTH FACTOR',
-            value: positionInfo.loading ? 'loading...' : getHealthFactor(),
-          },
-          {
-            label: 'CURRENT MARGIN',
-            value: `${formatCurrency(margin)} ${underlyingTokenName}`,
-            highlight: true
-          },
-        ]} />
-      </Panel>
+        Portfolio
+      </Button>
     </Box>
   );
 };

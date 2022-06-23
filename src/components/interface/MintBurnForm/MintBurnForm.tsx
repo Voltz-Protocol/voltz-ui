@@ -86,7 +86,6 @@ const MintBurnForm: React.FunctionComponent<MintBurnFormProps> = ({
       <Panel
         variant="darker"
         sx={{
-          marginTop: 12,
           width: (theme) => theme.spacing(97),
           boxShadow: '0px 0px 60px rgba(255, 89, 156, 0.2)',
         }}
@@ -182,27 +181,22 @@ const MintBurnForm: React.FunctionComponent<MintBurnFormProps> = ({
         />
       </Panel>
 
-      <Box>
-        <Panel
-          variant="darker"
-          sx={{
-            marginTop: 12,
-            marginLeft: (theme) => theme.spacing(2),
-            width: (theme) => theme.spacing(97),
-            boxShadow: '0px 0px 60px rgba(255, 89, 156, 0.2)',
-          }}
-        >
-          {(mode !== MintBurnFormModes.EDIT_MARGIN && isAddingLiquidity && (!isUndefined(minRequiredMargin) || minRequiredMarginLoading)) && (
-            <Box>
-              <MintInfo 
-                balance={balance}
-                minRequiredMargin={minRequiredMargin}
-                loading={minRequiredMarginLoading} 
-                underlyingTokenName={underlyingTokenName} 
-              />
-            </Box>
-          )}
-        </Panel>
+      <Box sx={{
+        marginLeft: (theme) => theme.spacing(2),
+        padding: (theme) => theme.spacing(6),
+        width: (theme) => theme.spacing(97),
+        boxSizing: 'border-box'
+      }}>
+        {(mode !== MintBurnFormModes.EDIT_MARGIN && isAddingLiquidity && (!isUndefined(minRequiredMargin) || minRequiredMarginLoading)) && (
+          <Box>
+            <MintInfo 
+              balance={balance}
+              minRequiredMargin={minRequiredMargin}
+              loading={minRequiredMarginLoading} 
+              underlyingTokenName={underlyingTokenName} 
+            />
+          </Box>
+        )}
       </Box>
     </>
   );

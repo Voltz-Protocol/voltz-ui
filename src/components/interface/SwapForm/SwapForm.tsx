@@ -5,7 +5,7 @@ import { SystemStyleObject } from '@mui/system';
 import { Theme } from '@mui/material';
 import { useAgent, useTokenApproval } from '@hooks';
 import { Agents, SwapFormMarginAction, SwapFormState, SwapFormSubmitButtonHintStates, SwapFormSubmitButtonStates, } from '@components/contexts';
-import { Panel } from '@components/atomic';
+import { Panel, PositionBadge } from '@components/atomic';
 import {
   IconLabel,
   ProtocolInformation,
@@ -17,7 +17,6 @@ import { TraderControls, MarginControls, SubmitControls, Leverage } from './comp
 import { colors } from '@theme';
 import { InfoPostSwap } from '@voltz-protocol/v1-sdk';
 import { SwapFormActions, SwapFormModes } from './types';
-import { PositionBadge } from '@components/interface';
 
 export type SwapFormProps = {
   approvalsNeeded: boolean;
@@ -87,7 +86,6 @@ const SwapForm: React.FunctionComponent<SwapFormProps> = ({
     <Panel
       variant="dark"
       sx={{
-        marginTop: 12,
         width: (theme) => theme.spacing(97),
         boxShadow: () => agent === Agents.FIXED_TRADER 
           ? '0px 0px 88px rgba(0, 131, 155, 0.2)' 

@@ -1,8 +1,7 @@
 import React from 'react';
 import Box from '@mui/material/Box';
-import { SystemStyleObject } from '@mui/system';
-import { Theme } from '@mui/material';
-import { Panel } from '@components/atomic';
+// import { SystemStyleObject } from '@mui/system';
+// import { Theme } from '@mui/material';
 import { SwapInfo, SwapInfoEditMargin } from './components';
 import { InfoPostSwap } from '@voltz-protocol/v1-sdk';
 import { SwapFormActions, SwapFormModes } from '../SwapForm/types';
@@ -36,37 +35,33 @@ const SwapFormPostInfo: React.FunctionComponent<SwapFormPostInfoProps> = ({
   // }
 
   return (
-    <Box>
-      <Panel
-        variant="dark"
-        sx={{
-          marginTop: 12,
-          marginLeft: (theme) => theme.spacing(2),
-          width: (theme) => theme.spacing(97),
-        }}
-      >
-        {mode === SwapFormModes.NEW_POSITION && (swapInfo || swapInfoLoading) && (
-          <Box>
-            <SwapInfo
-              data={swapInfo} 
-              loading={swapInfoLoading} 
-              underlyingTokenName={underlyingTokenName}
-              yieldBearingTokenName={protocol}
-              formAction={formAction}
-            />
-          </Box>
-        )}
-        {mode === SwapFormModes.EDIT_MARGIN && !isUndefined(minRequiredMargin) && !isUndefined(positionMargin) && (
-          <Box>
-            <SwapInfoEditMargin 
-              balance={balance}
-              minRequiredMargin={minRequiredMargin}
-              positionMargin={positionMargin}
-              underlyingTokenName={underlyingTokenName}
-            />
-          </Box>
-        )}
-      </Panel>
+    <Box sx={{
+      marginLeft: (theme) => theme.spacing(2),
+      padding: (theme) => theme.spacing(6),
+      width: (theme) => theme.spacing(97),
+      boxSizing: 'border-box'
+    }}>
+      {mode === SwapFormModes.NEW_POSITION && (swapInfo || swapInfoLoading) && (
+        <Box>
+          <SwapInfo
+            data={swapInfo} 
+            loading={swapInfoLoading} 
+            underlyingTokenName={underlyingTokenName}
+            yieldBearingTokenName={protocol}
+            formAction={formAction}
+          />
+        </Box>
+      )}
+      {mode === SwapFormModes.EDIT_MARGIN && !isUndefined(minRequiredMargin) && !isUndefined(positionMargin) && (
+        <Box>
+          <SwapInfoEditMargin 
+            balance={balance}
+            minRequiredMargin={minRequiredMargin}
+            positionMargin={positionMargin}
+            underlyingTokenName={underlyingTokenName}
+          />
+        </Box>
+      )}
     </Box>
   );
 };

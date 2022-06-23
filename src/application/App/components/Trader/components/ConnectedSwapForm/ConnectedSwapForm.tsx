@@ -150,7 +150,9 @@ const ConnectedSwapForm: React.FunctionComponent<ConnectedSwapFormProps> = ({ on
 
   return (
     <>
-      {position && <SwapFormCurrentPosition position={position} />}
+      {position && (
+        <SwapFormCurrentPosition onPortfolio={onReset} position={position} />
+      )}
       <SwapForm
         approvalsNeeded={form.approvalsNeeded}
         balance={form.balance ? amm.descale(form.balance) : undefined}

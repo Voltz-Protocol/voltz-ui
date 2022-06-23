@@ -52,7 +52,22 @@ const styles:Record<PositionBadgeVariant, SystemStyleObject<Theme>> = {
   }
 }
 
-const PositionBadge = ({ sx = {}, variant }:PositionBadgeProps) => {
+/**
+ * Returns the 2 letter variant for a position type
+ * @param positionType - positionType from your position (1, 2 or 3)
+ */
+export const getPositionBadgeVariant = (positionType: number) => {
+  switch(positionType) {
+    case 1:
+      return 'FT';
+    case 2:
+      return 'VT';
+    case 3:
+      return 'LP';
+  }
+};
+
+export const PositionBadge = ({ sx = {}, variant }:PositionBadgeProps) => {
   if (variant) return (
     <Box sx={{ ...sx, ...styles[variant] }}>
       <Typography variant='body2' sx={{ color: 'unset', fontSize: '14px', lineHeight: '1' }}>
